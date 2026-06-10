@@ -22,10 +22,13 @@ echo "[1] greenfield install (sem git)"
 "$WS/installer/install.sh" --target "$T1" --slug fixture-app --name "Fixture App" --desc "Fixture do gate W1.3" >/dev/null
 [ -f "$T1/.forge/FORGE.md" ]
 [ "$(grep -rl '<PROJECT_[A-Z_]*>' "$T1/.forge" | wc -l | tr -d ' ')" -eq 0 ]
-[ -f "$T1/AGENTS.md" ] && [ -L "$T1/CLAUDE.md" ] && [ -L "$T1/QWEN.md" ] && [ -L "$T1/GEMINI.md" ]
-[ -f "$T1/.claude/settings.json" ] && [ -f "$T1/.forge/adapters/claude.lock.yaml" ]
+# default install = claude only: AGENTS.md (core) + CLAUDE.md; NO QWEN/GEMINI/.agents/.cursor/.kiro
+[ -f "$T1/AGENTS.md" ] && [ -L "$T1/CLAUDE.md" ]
+[ ! -e "$T1/QWEN.md" ] && [ ! -e "$T1/GEMINI.md" ]
+[ ! -d "$T1/.agents" ] && [ ! -d "$T1/.cursor" ] && [ ! -d "$T1/.kiro" ]
+[ -f "$T1/.claude/settings.json" ] && [ -f "$T1/.forge/adapters/claude.lock.yaml" ] && [ -f "$T1/.forge/adapters/core.lock.yaml" ]
 grep -q '>>> forge (managed) >>>' "$T1/.gitignore"
-echo "OK [1]"
+echo "OK [1] (claude-only, sem poluicao de adapters nao escolhidos)"
 
 echo "[2] doctor exit 0"
 (cd "$T1" && bash .forge/scripts/doctor.sh --report >/dev/null)

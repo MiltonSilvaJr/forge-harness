@@ -69,19 +69,32 @@ check_harness() {
     miss "harness: AGENTS.md ausente (rode .forge/scripts/sync-adapters.sh)"; MISSING_DIAG=1
   fi
 
-  for link in CLAUDE.md QWEN.md GEMINI.md; do
-    if [ -L "$ROOT/$link" ] && [ "$(readlink "$ROOT/$link")" = "AGENTS.md" ]; then
-      ok "harness: $link -> AGENTS.md (symlink)"
-    elif [ -f "$ROOT/$link" ] && head -1 "$ROOT/$link" | grep -q 'Generated from .forge/FORGE.md'; then
-      ok "harness: $link (cópia materializada gerada)"
-    else
-      miss "harness: $link não resolve para AGENTS.md"; MISSING_DIAG=1
+  # root instruction symlinks are owned by their adapter — checked only when the adapter is
+  # active (CLAUDE.md↔claude, QWEN.md↔qwen, GEMINI.md↔gemini). An existing link whose adapter
+  # is inactive is a stale prune leftover (drift).
+  active_adapters="$(awk '/^  adapters:/{g=1;next} g&&/^    - /{print $2;next} g{exit}' "$ROOT/.forge/forge.yaml" 2>/dev/null)"
+  adapter_active() { printf '%s\n' "$active_adapters" | grep -qx "$1"; }
+  check_link() {  # $1=adapter $2=linkfile
+    if adapter_active "$1"; then
+      if [ -L "$ROOT/$2" ] && [ "$(readlink "$ROOT/$2")" = "AGENTS.md" ]; then
+        ok "harness: $2 -> AGENTS.md (symlink)"
+      elif [ -f "$ROOT/$2" ] && head -1 "$ROOT/$2" | grep -q 'Generated from .forge/FORGE.md'; then
+        ok "harness: $2 (cópia materializada gerada)"
+      else
+        miss "harness: $2 não resolve para AGENTS.md"; MISSING_DIAG=1
+      fi
+    elif [ -e "$ROOT/$2" ] || [ -L "$ROOT/$2" ]; then
+      miss "harness: $2 órfão (adapter $1 inativo — rode sync-adapters --adapter all)"; MISSING_DIAG=1
     fi
-  done
+  }
+  check_link claude CLAUDE.md
+  check_link qwen QWEN.md
+  check_link gemini GEMINI.md
 
-  # infra that generates/validates the adapter legitimately mentions the target dir;
-  # the leak check guards CONTENT (agents/rules/commands/skills), not the machinery
-  leaks="$(grep -rl '\.claude/' "$ROOT/.forge" 2>/dev/null | grep -vE '/(adapters|scripts/lib)/|/scripts/doctor\.sh$' | wc -l | tr -d ' ')"
+  # the leak check guards MIGRATED CONTENT (agents/rules/skills + the 8 legacy commands);
+  # the machinery (adapters/, scripts/) and the harness meta-commands legitimately name the
+  # generated .claude/ dir, so they are excluded
+  leaks="$(grep -rl '\.claude/' "$ROOT/.forge" 2>/dev/null | grep -vE '/(adapters|scripts)/|/commands/harness/' | wc -l | tr -d ' ')"
   if [ "$leaks" -eq 0 ]; then ok "harness: fonte canônica sem refs .claude/"
   else miss "harness: $leaks arquivo(s) da fonte canônica com refs .claude/"; MISSING_DIAG=1; fi
 
