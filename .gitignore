@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Node (workspace dev-dependencies only; template must stay dependency-free)
+node_modules/
+
+# Test outputs and scratch
+tmp/
+*.log
+tests/**/output/
+tests/**/*.actual
