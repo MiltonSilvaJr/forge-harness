@@ -3,15 +3,11 @@ harness:
   name: forge
   installed_at: "<INSTALLED_AT>"
   template_version: "0.1.0-dev"
+  # Active adapters for THIS repo (chosen at /forge:init, reconciled by sync-adapters).
+  # Available adapters are the declarations in .forge/adapters/*.yaml; only the ones listed
+  # here are materialized. Default is claude; add others via /forge:sync-adapters --set.
   adapters:
     - claude
-    - agents-skills
-    - qwen
-    - forge-cli
-    - codex
-    - gemini
-    - kiro
-    - cursor
 specs:
   root: .forge/specs
   active: .forge/specs/active

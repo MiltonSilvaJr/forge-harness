@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Smoke runner for adapter declarations (§15) — executes every smoke_tests.command of each
-# .forge/adapters/<name>.yaml from the project root, plus a global foreign-path check over
-# generated targets (no adapter may carry paths from another machine/project).
+# Smoke runner for adapter declarations (§15) — executes smoke_tests.command of each ACTIVE
+# adapter (those listed in forge.yaml harness.adapters; pass --all to smoke every declaration),
+# plus a global foreign-path check over generated targets (no adapter may carry paths from
+# another machine/project).
 # Output: one line per adapter + final "OK" (exit 0) or "FAIL (...)" (exit 1).
 set -u
 
@@ -9,9 +10,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 fail=0
 
+ALL=0
+[ "${1:-}" = "--all" ] && ALL=1
+
+# active set from forge.yaml (the adapters actually materialized in this repo)
+active="$(awk '/^  adapters:/{g=1;next} g&&/^    - /{print $2;next} g{exit}' "$ROOT/.forge/forge.yaml" 2>/dev/null)"
+is_active() { printf '%s\n' "$active" | grep -qx "$1"; }
+
 for decl in "$ROOT"/.forge/adapters/*.yaml; do
   case "$decl" in *.lock.yaml) continue ;; esac
   name="$(basename "$decl" .yaml)"
+  if [ "$ALL" -eq 0 ] && ! is_active "$name"; then continue; fi
   total=0
   ok_count=0
   while IFS= read -r line; do

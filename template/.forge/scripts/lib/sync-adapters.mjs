@@ -1,17 +1,26 @@
 #!/usr/bin/env node
-// sync-adapters — projects .forge/** into tool-specific adapters (§15).
-// W1.2 delivered claude; W1.4 generalizes: claude, agents-skills, qwen, forge-cli, codex,
-// gemini, kiro, cursor. Declarations live in .forge/adapters/<name>.yaml; each run writes a
-// deterministic <name>.lock.yaml (sorted, no timestamps) used by doctor for drift detection.
+// sync-adapters — projects .forge/** into tool-specific adapters (§15), installing ONLY the
+// adapters a project actually uses (chosen at /forge:init, recorded in forge.yaml). Switching
+// the active set reconciles the workspace: missing adapters are generated, removed ones pruned.
 //
-// Dependency-free by design (runs in target projects without node_modules). The FORGE.md
-// frontmatter is read via targeted extraction for a structure owned and schema-validated by
-// the Forge itself — not a general YAML parser.
+// Why adapters are materialized (not symlinked to .forge/): each tool discovers commands/
+// agents/skills by its OWN folder convention — Claude reads .claude/, Cursor .cursor/, Kiro
+// .kiro/ — and none read from .forge/. AGENTS.md (root) is the canonical interface (industry
+// standard); CLAUDE/QWEN/GEMINI.md are cheap symlinks to it, generated only for active tools.
 //
-// Usage: node sync-adapters.mjs --adapter <name>|all [--root <project-root>] [--copy-links]
+// Modes:
+//   --set <a,b,...>   rewrite the active adapter list in forge.yaml, then reconcile (generate
+//                     active + prune deactivated). Used by /forge:init.
+//   --adapter all     reconcile against the active list already in forge.yaml (generate + prune).
+//   --adapter <name>  regenerate just one adapter (no prune, does not change the active list).
+//   --copy-links      materialize CLAUDE/QWEN/GEMINI.md as copies instead of symlinks.
+//
+// Dependency-free (runs in target projects without node_modules). FORGE.md frontmatter is read
+// via targeted extraction for a structure the Forge owns and schema-validates — not generic YAML.
+// Deterministic: no timestamps; lockfile entries sorted; running twice is byte-identical.
 import {
   readFileSync, writeFileSync, mkdirSync, readdirSync, statSync,
-  existsSync, symlinkSync, lstatSync, unlinkSync, readlinkSync
+  existsSync, symlinkSync, lstatSync, unlinkSync, readlinkSync, rmdirSync
 } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, relative, basename, dirname } from 'node:path';
@@ -22,17 +31,19 @@ const opt = (name, dflt) => {
   const i = argv.indexOf(`--${name}`);
   return i >= 0 ? argv[i + 1] : dflt;
 };
-const ADAPTER = opt('adapter', 'claude');
+const SET = opt('set', null);            // comma list → rewrite active set + reconcile
+const ADAPTER = opt('adapter', null);    // 'all' | single name
 const ROOT = opt('root', process.cwd());
 const COPY_LINKS = argv.includes('--copy-links');
 const FORGE = join(ROOT, '.forge');
+const ADAPTERS_DIR = join(FORGE, 'adapters');
 
 if (!existsSync(join(FORGE, 'FORGE.md'))) {
   console.error(`FAIL (no .forge/FORGE.md under ${ROOT} — run /forge:init first)`);
   process.exit(1);
 }
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── fs helpers ───────────────────────────────────────────────────────────────
 const sha256 = (buf) => 'sha256:' + createHash('sha256').update(buf).digest('hex');
 const ensure = (dir) => mkdirSync(dir, { recursive: true });
 const writeIfChanged = (path, content) => {
@@ -40,6 +51,7 @@ const writeIfChanged = (path, content) => {
   ensure(dirname(path));
   writeFileSync(path, content);
 };
+const exists = (p) => { try { lstatSync(p); return true; } catch { return false; } };
 
 function walk(dir) {
   const out = [];
@@ -52,14 +64,19 @@ function walk(dir) {
   return out;
 }
 
-// Targeted frontmatter extraction: top-level "section:" then 2-space-indented "key: value".
+function removeEmptyDirs(dir) {
+  if (!existsSync(dir) || !statSync(dir).isDirectory()) return;
+  for (const e of readdirSync(dir)) removeEmptyDirs(join(dir, e));
+  try { if (readdirSync(dir).length === 0) rmdirSync(dir); } catch { /* not empty */ }
+}
+
+// ── FORGE.md frontmatter (targeted extraction) ──────────────────────────────
 function fmExtract(md) {
   const m = md.match(/^---\n([\s\S]*?)\n---/);
   if (!m) return {};
-  const lines = m[1].split('\n');
   const out = {};
   let section = null;
-  for (const line of lines) {
+  for (const line of m[1].split('\n')) {
     const top = line.match(/^([a-z_]+):\s*(.*)$/);
     const sub = line.match(/^ {2}([a-z_]+):\s*(.*)$/);
     if (top) { section = top[1]; if (top[2]) out[section] = top[2]; }
@@ -67,12 +84,10 @@ function fmExtract(md) {
   }
   return out;
 }
-
-const forgeMd = readFileSync(join(FORGE, 'FORGE.md'), 'utf8');
-const fm = fmExtract(forgeMd);
+const fm = fmExtract(readFileSync(join(FORGE, 'FORGE.md'), 'utf8'));
 const val = (k) => fm[k] ?? '';
 
-// AGENTS.md operational projection (§7.2, header §7.4) — shared by claude/codex.
+// AGENTS.md operational projection (§7.2, header §7.4) — generated by the always-on core step.
 let _projected = null;
 function projectAgentsMd() {
   if (_projected) return _projected;
@@ -93,27 +108,35 @@ function projectAgentsMd() {
   return _projected;
 }
 
+// ── active adapter list in forge.yaml ────────────────────────────────────────
+const FORGE_YAML = join(FORGE, 'forge.yaml');
+function readActive() {
+  const y = readFileSync(FORGE_YAML, 'utf8');
+  const m = y.match(/^  adapters:\n((?:    - .*\n)+)/m);
+  if (!m) return ['claude'];
+  return m[1].split('\n').map((l) => l.replace(/^ {4}- /, '').trim()).filter(Boolean);
+}
+function writeActive(names) {
+  let y = readFileSync(FORGE_YAML, 'utf8');
+  const block = '  adapters:\n' + names.map((n) => `    - ${n}`).join('\n') + '\n';
+  const re = /^  adapters:\n(?:    - .*\n)+/m;
+  y = re.test(y) ? y.replace(re, block) : y.replace(/^(harness:\n)/m, `$1${block}`);
+  writeIfChanged(FORGE_YAML, y);
+}
+
+// ── lockfile per generation unit ─────────────────────────────────────────────
 function makeLock() {
   const entries = [];
-  return {
+  const api = {
     entries,
     emit(destAbs, content, srcAbs = null) {
       writeIfChanged(destAbs, content);
-      entries.push({
-        dest: relative(ROOT, destAbs),
-        src: srcAbs ? relative(ROOT, srcAbs) : null,
-        sha256: sha256(Buffer.from(content)),
-      });
+      entries.push({ dest: relative(ROOT, destAbs), src: srcAbs ? relative(ROOT, srcAbs) : null, sha256: sha256(Buffer.from(content)) });
     },
     linkToAgentsMd(linkName) {
       const p = join(ROOT, linkName);
-      if (COPY_LINKS) {
-        this.emit(p, projectAgentsMd(), join(FORGE, 'FORGE.md'));
-        return;
-      }
-      let exists = false;
-      try { lstatSync(p); exists = true; } catch { /* absent */ }
-      if (exists) {
+      if (COPY_LINKS) { api.emit(p, projectAgentsMd(), join(FORGE, 'FORGE.md')); return; }
+      if (exists(p)) {
         const st = lstatSync(p);
         if (st.isSymbolicLink() && readlinkSync(p) === 'AGENTS.md') {
           entries.push({ dest: linkName, src: 'AGENTS.md', sha256: 'symlink' });
@@ -125,41 +148,53 @@ function makeLock() {
       entries.push({ dest: linkName, src: 'AGENTS.md', sha256: 'symlink' });
     },
   };
+  return api;
 }
-
-function writeLock(adapter, lock) {
+function writeLock(name, lock) {
   lock.entries.sort((a, b) => a.dest.localeCompare(b.dest));
   const out = [
     '# Generated by sync-adapters.mjs — drift detection input for forge doctor (§15).',
-    `adapter: ${adapter}`,
+    `adapter: ${name}`,
     'files:',
     ...lock.entries.map((e) =>
-      [`  - dest: ${e.dest}`, e.src ? `    src: ${e.src}` : null, `    sha256: ${e.sha256}`]
-        .filter(Boolean)
-        .join('\n')
-    ),
+      [`  - dest: ${e.dest}`, e.src ? `    src: ${e.src}` : null, `    sha256: ${e.sha256}`].filter(Boolean).join('\n')),
     '',
   ].join('\n');
-  writeIfChanged(join(FORGE, 'adapters', `${adapter}.lock.yaml`), out);
+  writeIfChanged(join(ADAPTERS_DIR, `${name}.lock.yaml`), out);
 }
 
+// ── shared projections ───────────────────────────────────────────────────────
 const commandFiles = () =>
   walk(join(FORGE, 'commands')).filter((f) => f.endsWith('.md') && basename(f) !== 'README.md');
+const skillFiles = () => walk(join(FORGE, 'skills'));
 
-// Wrappers exist ONLY for the 8 legacy commands of contract clause C1 — new Forge commands
-// (doctor, status, sync-adapters, …) never had a non-namespaced name and get no alias.
+// Wrappers exist ONLY for the 8 legacy commands of contract clause C1.
 const LEGACY_COMMANDS = new Set([
   'run-spec-pipeline', 'specs-loop', 'coding-loop', 'coding-status',
   'deploy-wave', 'new-adr', 'update-changelog', 'scaffold-tdd',
 ]);
+
+function emitAgentsCommands(lock) {
+  for (const src of commandFiles()) lock.emit(join(ROOT, '.agents/commands/forge', basename(src)), readFileSync(src, 'utf8'), src);
+}
+function emitAgentsSkills(lock) {
+  for (const src of skillFiles()) {
+    const rel = relative(join(FORGE, 'skills'), src);
+    lock.emit(join(ROOT, '.agents/skills', rel), readFileSync(src, 'utf8'), src);
+  }
+}
+
+// ── core (always generated) ──────────────────────────────────────────────────
+function generateCore(lock) {
+  lock.emit(join(ROOT, 'AGENTS.md'), projectAgentsMd(), join(FORGE, 'FORGE.md'));
+}
 
 // ── adapter generators ───────────────────────────────────────────────────────
 const GENERATORS = {
   claude(lock) {
     for (const src of commandFiles()) {
       const name = basename(src, '.md');
-      const content = readFileSync(src, 'utf8');
-      lock.emit(join(ROOT, '.claude/commands/forge', `${name}.md`), content, src);
+      lock.emit(join(ROOT, '.claude/commands/forge', `${name}.md`), readFileSync(src, 'utf8'), src);
       if (!LEGACY_COMMANDS.has(name)) continue;
       const wrapper = `---
 description: "[DEPRECATED] Alias de /forge:${name} mantido pelo contrato de compatibilidade (C1); remocao prevista na W8.3. Prefira /forge:${name}."
@@ -172,68 +207,22 @@ Execute exatamente as instrucoes de \`.claude/commands/forge/${name}.md\` com os
       lock.emit(join(ROOT, '.claude/commands', `${name}.md`), wrapper, src);
     }
     const cmdReadme = join(FORGE, 'commands', 'README.md');
-    if (existsSync(cmdReadme)) {
-      lock.emit(join(ROOT, '.claude/commands/forge', 'README.md'), readFileSync(cmdReadme, 'utf8'), cmdReadme);
-    }
+    if (existsSync(cmdReadme)) lock.emit(join(ROOT, '.claude/commands/forge', 'README.md'), readFileSync(cmdReadme, 'utf8'), cmdReadme);
     for (const tree of ['agents', 'skills']) {
       for (const src of walk(join(FORGE, tree))) {
-        const rel = relative(join(FORGE, tree), src);
-        lock.emit(join(ROOT, '.claude', tree, rel), readFileSync(src, 'utf8'), src);
+        lock.emit(join(ROOT, '.claude', tree, relative(join(FORGE, tree), src)), readFileSync(src, 'utf8'), src);
       }
     }
-    // C5: ONLY the worktree-guard is wired
-    const settings = {
-      hooks: {
-        PreToolUse: [
-          {
-            matcher: 'Bash',
-            hooks: [
-              {
-                type: 'command',
-                command: '$CLAUDE_PROJECT_DIR/.forge/hooks/pre-tool-use/enforce-worktree-location.sh',
-              },
-            ],
-          },
-        ],
-      },
-    };
-    lock.emit(join(ROOT, '.claude/settings.json'), JSON.stringify(settings, null, 2) + '\n');
-    lock.emit(join(ROOT, 'AGENTS.md'), projectAgentsMd(), join(FORGE, 'FORGE.md'));
-    for (const link of ['CLAUDE.md', 'QWEN.md', 'GEMINI.md']) lock.linkToAgentsMd(link);
+    lock.emit(join(ROOT, '.claude/settings.json'), JSON.stringify({
+      hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: '$CLAUDE_PROJECT_DIR/.forge/hooks/pre-tool-use/enforce-worktree-location.sh' }] }] },
+    }, null, 2) + '\n');
+    lock.linkToAgentsMd('CLAUDE.md');
   },
-
-  'agents-skills'(lock) {
-    for (const src of walk(join(FORGE, 'skills'))) {
-      const rel = relative(join(FORGE, 'skills'), src);
-      lock.emit(join(ROOT, '.agents/skills', rel), readFileSync(src, 'utf8'), src);
-    }
-  },
-
-  qwen(lock) {
-    for (const src of commandFiles()) {
-      lock.emit(join(ROOT, '.agents/commands/forge', basename(src)), readFileSync(src, 'utf8'), src);
-    }
-    lock.linkToAgentsMd('QWEN.md');
-  },
-
-  'forge-cli'(lock) {
-    for (const src of commandFiles()) {
-      lock.emit(join(ROOT, '.agents/commands/forge', basename(src)), readFileSync(src, 'utf8'), src);
-    }
-    for (const src of walk(join(FORGE, 'skills'))) {
-      const rel = relative(join(FORGE, 'skills'), src);
-      lock.emit(join(ROOT, '.agents/skills', rel), readFileSync(src, 'utf8'), src);
-    }
-  },
-
-  codex(lock) {
-    lock.emit(join(ROOT, 'AGENTS.md'), projectAgentsMd(), join(FORGE, 'FORGE.md'));
-  },
-
-  gemini(lock) {
-    lock.linkToAgentsMd('GEMINI.md');
-  },
-
+  codex(_lock) { /* consumes the canonical AGENTS.md (core) — no extra target (§15) */ },
+  gemini(lock) { lock.linkToAgentsMd('GEMINI.md'); },
+  qwen(lock) { emitAgentsCommands(lock); lock.linkToAgentsMd('QWEN.md'); },
+  'forge-cli'(lock) { emitAgentsCommands(lock); emitAgentsSkills(lock); },
+  'agents-skills'(lock) { emitAgentsSkills(lock); },
   kiro(lock) {
     const steering = `# Forge — steering for Kiro
 
@@ -255,7 +244,6 @@ Rules for working in this repository:
 `;
     lock.emit(join(ROOT, '.kiro/steering/forge.md'), steering, join(FORGE, 'FORGE.md'));
   },
-
   cursor(lock) {
     const mdc = `---
 description: Forge Project Harness — canonical governance pointer (source of truth .forge/)
@@ -272,23 +260,70 @@ Validate with \`bash .forge/scripts/doctor.sh --report\` before declaring work d
   },
 };
 
-// Deterministic order: claude first (creates AGENTS.md + symlinks consumed by others).
-const ORDER = ['claude', 'agents-skills', 'qwen', 'forge-cli', 'codex', 'gemini', 'kiro', 'cursor'];
+// Deterministic order; core is implicit and always first.
+const ORDER = ['claude', 'codex', 'gemini', 'qwen', 'forge-cli', 'agents-skills', 'kiro', 'cursor'];
+const KNOWN = new Set(ORDER);
 
-const targets = ADAPTER === 'all' ? ORDER : [ADAPTER];
-for (const name of targets) {
-  if (!GENERATORS[name]) {
-    console.error(`FAIL (unknown adapter '${name}' — known: ${ORDER.join(', ')}, all)`);
-    process.exit(1);
+// ── reconcile (generate active + prune deactivated) ──────────────────────────
+function reconcile(activeNames) {
+  for (const n of activeNames) {
+    if (!KNOWN.has(n)) { console.error(`FAIL (unknown adapter '${n}' — known: ${ORDER.join(', ')})`); process.exit(1); }
   }
+  const active = ORDER.filter((n) => activeNames.includes(n)); // canonical order
+
+  const coreLock = makeLock();
+  generateCore(coreLock);
+  writeLock('core', coreLock);
+
+  const activeDests = new Set(coreLock.entries.map((e) => e.dest));
+  for (const name of active) {
+    const lock = makeLock();
+    GENERATORS[name](lock);
+    writeLock(name, lock);
+    lock.entries.forEach((e) => activeDests.add(e.dest));
+    console.log(`OK ${name} adapter synced (${lock.entries.length} targets)`);
+  }
+
+  // prune deactivated adapters: remove their dests not owned by any active adapter/core
+  let pruned = 0;
+  for (const file of readdirSync(ADAPTERS_DIR)) {
+    if (!file.endsWith('.lock.yaml')) continue;
+    const name = file.replace('.lock.yaml', '');
+    if (name === 'core' || active.includes(name)) continue;
+    const lockText = readFileSync(join(ADAPTERS_DIR, file), 'utf8');
+    for (const m of lockText.matchAll(/^ {2}- dest: (.*)$/gm)) {
+      const dest = m[1];
+      if (activeDests.has(dest)) continue;
+      const abs = join(ROOT, dest);
+      if (exists(abs)) { unlinkSync(abs); pruned++; }
+    }
+    unlinkSync(join(ADAPTERS_DIR, file));
+    console.log(`OK ${name} adapter pruned (deactivated)`);
+  }
+  for (const dir of ['.claude', '.agents', '.cursor', '.kiro']) removeEmptyDirs(join(ROOT, dir));
+
+  console.log(`OK reconcile complete: ${active.length} active [${active.join(', ')}]${pruned ? `, ${pruned} files pruned` : ''}`);
 }
 
-let total = 0;
-for (const name of targets) {
+// ── entry ────────────────────────────────────────────────────────────────────
+if (SET !== null) {
+  const names = SET.split(',').map((s) => s.trim()).filter(Boolean);
+  if (names.length === 0) { console.error('FAIL (--set needs at least one adapter)'); process.exit(1); }
+  for (const n of names) {
+    if (!KNOWN.has(n)) { console.error(`FAIL (unknown adapter '${n}' — known: ${ORDER.join(', ')})`); process.exit(1); }
+  }
+  writeActive(ORDER.filter((n) => names.includes(n)));
+  reconcile(names);
+} else if (ADAPTER === 'all' || ADAPTER === null) {
+  reconcile(readActive());
+} else {
+  // regenerate a single adapter (no prune, no active-list change); core first
+  if (!KNOWN.has(ADAPTER)) { console.error(`FAIL (unknown adapter '${ADAPTER}' — known: ${ORDER.join(', ')}, all)`); process.exit(1); }
+  const coreLock = makeLock();
+  generateCore(coreLock);
+  writeLock('core', coreLock);
   const lock = makeLock();
-  GENERATORS[name](lock);
-  writeLock(name, lock);
-  total += lock.entries.length;
-  console.log(`OK ${name} adapter synced (${lock.entries.length} targets)`);
+  GENERATORS[ADAPTER](lock);
+  writeLock(ADAPTER, lock);
+  console.log(`OK ${ADAPTER} adapter synced (${lock.entries.length} targets)`);
 }
-if (targets.length > 1) console.log(`OK all adapters synced (${total} targets) under ${ROOT}`);

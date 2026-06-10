@@ -4,7 +4,11 @@
 #
 # Usage: install.sh --target <dir> [--source <template/.forge dir>]
 #                   [--slug <kebab>] [--name <display>] [--desc <one-line>]
-#                   [--force] [--no-symlink]
+#                   [--adapters <a,b,...>] [--force] [--no-symlink]
+#   --adapters: comma list of agents to install (default: claude). Only these are materialized
+#     and recorded as the active set in forge.yaml; others stay available for later via
+#     /forge:sync-adapters --set. This is what keeps the workspace from being polluted with
+#     adapters the project does not use (the agent command forge-init.md elicits this list).
 # Behavior:
 #   - Overwrite guard: if <target>/.forge exists and no --force → exit 3, nothing touched.
 #     With --force → previous tree moved to .forge.bak-N (no data loss).
@@ -18,7 +22,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SOURCE="$(cd "$SCRIPT_DIR/../template/.forge" 2>/dev/null && pwd || true)"
-TARGET="" SLUG="" NAME="" DESC="" FORCE=0 NO_SYMLINK=0
+TARGET="" SLUG="" NAME="" DESC="" ADAPTERS="claude" FORCE=0 NO_SYMLINK=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -27,6 +31,7 @@ while [ $# -gt 0 ]; do
     --slug) SLUG="$2"; shift 2 ;;
     --name) NAME="$2"; shift 2 ;;
     --desc) DESC="$2"; shift 2 ;;
+    --adapters) ADAPTERS="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
     --no-symlink) NO_SYMLINK=1; shift ;;
     *) echo "FAIL (unknown argument: $1)"; exit 2 ;;
@@ -90,9 +95,9 @@ if [ -d "$TARGET/.github" ] || [ -d "$TARGET/.git" ]; then
   fi
 fi
 
-# 7. adapters (all declared — agent-agnostic by default, §15)
-SYNC_ARGS=(--adapter all)
+# 7. adapters — install ONLY the chosen set (default: claude); records them in forge.yaml
+SYNC_ARGS=(--set "$ADAPTERS")
 [ "$NO_SYMLINK" -eq 1 ] && SYNC_ARGS+=(--copy-links)
 (cd "$TARGET" && bash .forge/scripts/sync-adapters.sh "${SYNC_ARGS[@]}")
 
-echo "OK forge installed in $TARGET (slug: $SLUG)"
+echo "OK forge installed in $TARGET (slug: $SLUG, adapters: $ADAPTERS)"

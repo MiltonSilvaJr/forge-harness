@@ -4,9 +4,17 @@ description: Regenera os adapters (.claude, AGENTS.md, symlinks) a partir da fon
 
 # /forge:sync-adapters
 
-1. Rode `bash .forge/scripts/sync-adapters.sh --adapter claude` (acrescente `--copy-links` se o ambiente não suportar symlinks).
-2. Confirme a linha final `OK claude adapter synced (...)`.
-3. Rode `bash .forge/scripts/doctor.sh --report` e confirme "adapter claude sem drift".
-4. Reporte em 1-2 linhas o que foi regenerado. Lembre o usuário: os alvos gerados (adapter Claude, `AGENTS.md` e symlinks) **nunca** são editados à mão — toda edição acontece em `.forge/**` seguida de re-sync.
+Regenera os adapters a partir da fonte canônica `.forge/`. Os adapters **ativos** deste repo
+ficam registrados em `forge.yaml` (`harness.adapters`); só eles são materializados.
 
-Adapters adicionais (codex/qwen/kiro/gemini/cursor/agents-skills) chegam na wave W1.4 do harness.
+- **Regenerar os ativos** (uso comum, após editar `.forge/**`): `bash .forge/scripts/sync-adapters.sh --adapter all` (acrescente `--copy-links` se o ambiente não suportar symlinks).
+- **Mudar o conjunto ativo** (adicionar/remover um agente): `bash .forge/scripts/sync-adapters.sh --set <lista>` — ex.: `--set claude,codex`. Isso reescreve a lista em `forge.yaml`, gera os que faltam e **poda** os que saíram (remove pastas/símbolos do adapter desativado). Antes de remover um agente, confirme com o usuário (HITL).
+- **Regenerar só um**: `--adapter <nome>` (não altera a lista nem poda).
+
+Passos:
+1. Rode o comando adequado acima.
+2. Confirme a linha final `OK reconcile complete: ...` (ou `OK <nome> adapter synced`).
+3. Rode `bash .forge/scripts/doctor.sh --report` e confirme os adapters ativos "sem drift".
+4. Reporte em 1-2 linhas. Lembre: os alvos gerados (`.claude/`, `.cursor/`, `AGENTS.md`, symlinks…) **nunca** são editados à mão — toda edição acontece em `.forge/**` seguida de re-sync.
+
+Adapters disponíveis: `claude`, `codex`, `gemini`, `qwen`, `forge-cli`, `agents-skills`, `kiro`, `cursor` (declarações em `.forge/adapters/*.yaml`).

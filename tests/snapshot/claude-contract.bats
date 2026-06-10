@@ -150,14 +150,15 @@ setup() {
 
 @test "C7: CLAUDE.md resolves to AGENTS.md (generated mode only)" {
   [ "$MODE" = "generated" ] || skip "snapshot has no symlink chain (created by init)"
-  for link in CLAUDE.md QWEN.md GEMINI.md; do
-    [ -L "$TARGET/$link" ] || [ -f "$TARGET/$link" ]
-    if [ -L "$TARGET/$link" ]; then
-      [ "$(readlink "$TARGET/$link")" = "AGENTS.md" ]
-    else
-      head -1 "$TARGET/$link" | grep -q 'Generated from .forge/FORGE.md'
-    fi
-  done
+  # The claude adapter owns CLAUDE.md only; QWEN/GEMINI.md belong to their own adapters and
+  # exist only when those are in the active set (so we assert just CLAUDE.md here).
+  link="CLAUDE.md"
+  [ -L "$TARGET/$link" ] || [ -f "$TARGET/$link" ]
+  if [ -L "$TARGET/$link" ]; then
+    [ "$(readlink "$TARGET/$link")" = "AGENTS.md" ]
+  else
+    head -1 "$TARGET/$link" | grep -q 'Generated from .forge/FORGE.md'
+  fi
 }
 
 @test "C8: AGENTS.md has the 7 identity fields in YAML frontmatter" {
