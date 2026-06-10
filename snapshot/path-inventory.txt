@@ -1,0 +1,331 @@
+# Path inventory — frozen snapshot of project-bootstrap (W0.2)
+# Generated: 2026-06-10. Input for the W1.1 rewrite map (.claude/ refs) and the
+# MVP2/MVP3 semantic migration (docs/product refs). See docs/plans/01-mvp1-forge-canonico.md.
+#
+# TOTALS (project-bootstrap only): .claude/=290  docs/product=689  combined=979  files-with-refs=69
+# Companion file (outside totals): init-project.md  .claude/=38  docs/product=1
+
+## Section 1 — per-file counts (TSV: file, claude_refs, docs_product_refs)
+project-bootstrap/.claude/README.md	0	1
+project-bootstrap/.claude/agents/README.md	1	16
+project-bootstrap/.claude/agents/architecture/adr-writer.md	1	3
+project-bootstrap/.claude/agents/architecture/clean-architecture-reviewer.md	1	0
+project-bootstrap/.claude/agents/architecture/ddd-architect.md	2	67
+project-bootstrap/.claude/agents/architecture/ddd-validator.md	0	70
+project-bootstrap/.claude/agents/architecture/module-generator.md	0	62
+project-bootstrap/.claude/agents/architecture/module-validator.md	3	26
+project-bootstrap/.claude/agents/code-review/dotnet-reviewer.md	1	0
+project-bootstrap/.claude/agents/coding/deploy-orchestrator.md	6	2
+project-bootstrap/.claude/agents/coding/sprint-orchestrator.md	6	3
+project-bootstrap/.claude/agents/coding/task-coder.md	19	21
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md	9	8
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md	9	8
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md	9	8
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md	11	11
+project-bootstrap/.claude/agents/review/arch-reviewer.md	5	2
+project-bootstrap/.claude/agents/review/code-evaluator.md	16	11
+project-bootstrap/.claude/agents/review/logic-reviewer.md	6	1
+project-bootstrap/.claude/agents/review/platform-reviewer.md	6	2
+project-bootstrap/.claude/agents/review/quality-reviewer.md	9	1
+project-bootstrap/.claude/agents/review/security-reviewer.md	7	0
+project-bootstrap/.claude/agents/specifications/design-validator.md	1	19
+project-bootstrap/.claude/agents/specifications/design-writer.md	2	16
+project-bootstrap/.claude/agents/specifications/discovery-agent.md	0	6
+project-bootstrap/.claude/agents/specifications/frd-generator.md	0	15
+project-bootstrap/.claude/agents/specifications/frd-nfrd-validator.md	1	22
+project-bootstrap/.claude/agents/specifications/nfrd-generator.md	0	3
+project-bootstrap/.claude/agents/specifications/prd-generator.md	6	6
+project-bootstrap/.claude/agents/specifications/prd-validator.md	0	13
+project-bootstrap/.claude/agents/specifications/product-backlog.md	3	23
+project-bootstrap/.claude/agents/specifications/requirements-validator.md	9	19
+project-bootstrap/.claude/agents/specifications/requirements-writer.md	11	19
+project-bootstrap/.claude/agents/specifications/tasks-validator.md	1	18
+project-bootstrap/.claude/agents/specifications/tasks-writer.md	2	16
+project-bootstrap/.claude/agents/specifications/trd-generator.md	17	45
+project-bootstrap/.claude/agents/specifications/trd-validator.md	0	59
+project-bootstrap/.claude/commands/README.md	1	1
+project-bootstrap/.claude/commands/coding/coding-loop.md	6	3
+project-bootstrap/.claude/commands/coding/coding-status.md	5	3
+project-bootstrap/.claude/commands/coding/deploy-wave.md	3	2
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md	11	12
+project-bootstrap/.claude/commands/specs/specs-loop.md	3	7
+project-bootstrap/.claude/hooks/pre-tool-use/check-language-policy.sh	1	0
+project-bootstrap/.claude/hooks/pre-tool-use/enforce-worktree-location.sh	4	0
+project-bootstrap/.claude/hooks/pre-tool-use/validate-naming-conventions.sh	1	0
+project-bootstrap/.claude/rules/README.md	1	0
+project-bootstrap/.claude/rules/architecture/clean-architecture.md	1	1
+project-bootstrap/.claude/rules/architecture/ddd.md	1	2
+project-bootstrap/.claude/rules/architecture/docker-image-security.md	0	2
+project-bootstrap/.claude/rules/architecture/docker-multi-arch.md	1	3
+project-bootstrap/.claude/rules/architecture/mtls-internal-services.md	1	2
+project-bootstrap/.claude/rules/conventions/conventional-commits.md	0	3
+project-bootstrap/.claude/rules/conventions/document-versioning.md	0	2
+project-bootstrap/.claude/rules/conventions/git-worktree.md	14	0
+project-bootstrap/.claude/rules/conventions/language-policy.md	4	1
+project-bootstrap/.claude/rules/conventions/lsp-impact-analysis.md	1	0
+project-bootstrap/.claude/rules/conventions/naming.md	1	5
+project-bootstrap/.claude/rules/conventions/no-summary-files.md	1	0
+project-bootstrap/.claude/rules/domain/money-as-cents.md	1	0
+project-bootstrap/.claude/rules/frontend/design-system.md	4	10
+project-bootstrap/.claude/scripts/doctor.sh	2	0
+project-bootstrap/.claude/settings.json	1	0
+project-bootstrap/.claude/skills/design-system-creator/SKILL.md	0	3
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md	20	0
+project-bootstrap/.claude/skills/verify-build/SKILL.md	2	0
+project-bootstrap/.claude/skills/verify-diff-claims/SKILL.md	4	0
+project-bootstrap/.gitignore	4	0
+project-bootstrap/AGENTS.md	11	5
+
+## Section 2 — full line detail of .claude/ refs (W1.1 rewrite targets; docs/product detail re-derived in MVPs 2-3)
+project-bootstrap/.claude/agents/README.md:48:1. Crie o arquivo em `.claude/agents/<categoria>/<nome-em-kebab-case>.md`
+project-bootstrap/.claude/agents/architecture/adr-writer.md:20:Você auxilia a criação e revisão de ADRs (Architectural Decision Records) no formato MADR para o `<project_name>` (ver protocolo de Bootstrap em `.claude/agents/README.md#bootstrap-de-identidade`). Sua missão é garantir que cada ADR seja completo, objetivo e verdadeiramente útil para quem precisar entender a decisão no futuro — incluindo o porquê das alternativas rejeitadas.
+project-bootstrap/.claude/agents/architecture/clean-architecture-reviewer.md:16:Você é um especialista em Clean Architecture com foco em backend .NET 8+/10+. Sua missão é garantir que cada serviço/módulo do `<project_name>` (resolver via bootstrap — ver `.claude/agents/README.md#bootstrap-de-identidade`) respeita as regras de dependência entre camadas: `Api → Application → Domain`, com `Infrastructure` implementando interfaces definidas em `Domain` e `Application`.
+project-bootstrap/.claude/agents/architecture/ddd-architect.md:1025:Use este esqueleto e substitua os blocos Mermaid pelo conteúdo dos arquivos `c4-level-N-*.md`. Antes de escrever o arquivo, **substitua `${project_display}` pelo valor lido do bloco YAML do `AGENTS.md`** (ver protocolo de Bootstrap em `.claude/agents/README.md#bootstrap-de-identidade`):
+project-bootstrap/.claude/agents/architecture/ddd-architect.md:145:- O `<slug>` deriva do nome do subdomínio/BC em `kebab-case`, alinhado a `.claude/rules/conventions/naming.md`.
+project-bootstrap/.claude/agents/architecture/module-validator.md:472:- `.claude/rules/architecture/clean-architecture.md` — base para validação de dependências
+project-bootstrap/.claude/agents/architecture/module-validator.md:473:- `.claude/rules/architecture/ddd.md` — base para Context Map e ownership
+project-bootstrap/.claude/agents/architecture/module-validator.md:474:- `.claude/rules/architecture/security-and-compliance.md` — base para PCI DSS e LGPD
+project-bootstrap/.claude/agents/code-review/dotnet-reviewer.md:73:- `aws_secret_access_key=AKIA...` em config commitada (P0 — ver `.claude/hooks/`)
+project-bootstrap/.claude/agents/coding/deploy-orchestrator.md:160:Falha aqui → REJEITA deploy. Vide regra de zero tolerance em `.claude/rules/architecture/docker-image-security.md`.
+project-bootstrap/.claude/agents/coding/deploy-orchestrator.md:26:Antes de qualquer ação, executar o protocolo de **Bootstrap de identidade** descrito em `.claude/agents/README.md`. Este agent consome `<repo_slug>` (Cosign cert identity regex) — leia do front-matter YAML do `AGENTS.md` raiz; faça bootstrap interativo apenas se ausente.
+project-bootstrap/.claude/agents/coding/deploy-orchestrator.md:372:- `.claude/agents/coding/sprint-orchestrator.md` (etapa anterior)
+project-bootstrap/.claude/agents/coding/deploy-orchestrator.md:373:- `.claude/rules/architecture/docker-multi-arch.md`
+project-bootstrap/.claude/agents/coding/deploy-orchestrator.md:374:- `.claude/rules/architecture/docker-image-security.md`
+project-bootstrap/.claude/agents/coding/deploy-orchestrator.md:375:- `.claude/rules/architecture/security-and-compliance.md`
+project-bootstrap/.claude/agents/coding/sprint-orchestrator.md:24:Antes de qualquer ação, executar o protocolo de **Bootstrap de identidade** descrito em `.claude/agents/README.md`. Este agent consome `<repo_slug>` (URLs do GitHub) e `<JIRA_KEY>` (sync Jira) — leia ambos do front-matter YAML do `AGENTS.md` raiz; faça bootstrap interativo apenas se ausentes.
+project-bootstrap/.claude/agents/coding/sprint-orchestrator.md:272:- `.claude/agents/coding/task-coder.md` (invocador)
+project-bootstrap/.claude/agents/coding/sprint-orchestrator.md:273:- `.claude/agents/coding/deploy-orchestrator.md` (próxima etapa)
+project-bootstrap/.claude/agents/coding/sprint-orchestrator.md:274:- `.claude/agents/specifications/product-backlog.md` (cria issues Jira; este agente apenas consome)
+project-bootstrap/.claude/agents/coding/sprint-orchestrator.md:275:- `.claude/rules/conventions/conventional-commits.md`
+project-bootstrap/.claude/agents/coding/sprint-orchestrator.md:276:- `.claude/rules/conventions/git-worktree.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:21:Você é o `task-coder`, executor de **uma onda inteira** de TASKs de um módulo do `<project_name>` (resolver via bootstrap — ver `.claude/agents/README.md#bootstrap-de-identidade`).
+project-bootstrap/.claude/agents/coding/task-coder.md:277:    ".claude/rules/domain/money-as-cents.md",
+project-bootstrap/.claude/agents/coding/task-coder.md:278:    ".claude/rules/domain/nbr-5891-rounding.md"
+project-bootstrap/.claude/agents/coding/task-coder.md:281:  "test_policy": "TDD-first quando aplicável. Build local + testes locais devem passar antes de commitar. PBT obrigatória em Money.* conforme .claude/rules/testing/quality-gates.md."
+project-bootstrap/.claude/agents/coding/task-coder.md:467:- Modificar regras `.claude/rules/` ou specs `docs/product/modules/**` (exceto PROGRESS-TRACKING.md)
+project-bootstrap/.claude/agents/coding/task-coder.md:486:- `.claude/agents/engineering/fullstack-software-engineer.md` (modo direto + modo router)
+project-bootstrap/.claude/agents/coding/task-coder.md:487:- `.claude/agents/engineering/backend-engineer-dotnet.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:488:- `.claude/agents/engineering/frontend-engineer.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:489:- `.claude/agents/engineering/android-embedded-kotlin-engineer.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:490:- `.claude/agents/coding/sprint-orchestrator.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:491:- `.claude/agents/specifications/tasks-writer.md` (formato de TASK)
+project-bootstrap/.claude/agents/coding/task-coder.md:492:- `.claude/rules/conventions/conventional-commits.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:493:- `.claude/rules/conventions/git-worktree.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:494:- `.claude/rules/testing/tdd.md`
+project-bootstrap/.claude/agents/coding/task-coder.md:495:- `~/.claude/CLAUDE.md` (proibição de co-autoria de IA)
+project-bootstrap/.claude/agents/coding/task-coder.md:66:- `.claude/rules/conventions/`, `.claude/rules/architecture/`, `.claude/rules/domain/`, `.claude/rules/testing/`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:125:16. `.claude/rules/`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:126:17. `.claude/context/project.md`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:127:18. `.claude/context/architecture.md`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:128:19. `.claude/context/repository-structure.md`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:129:20. `.claude/context/constraints.md`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:130:21. `.claude/context/coding-standards.md`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:131:22. `.claude/context/testing-strategy.md`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:132:23. `.claude/context/security-and-compliance.md`
+project-bootstrap/.claude/agents/engineering/android-embedded-kotlin-engineer.md:133:24. `.claude/context/documentation-standards.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:121:16. `.claude/rules/`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:122:17. `.claude/context/project.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:123:18. `.claude/context/architecture.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:124:19. `.claude/context/repository-structure.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:125:20. `.claude/context/constraints.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:126:21. `.claude/context/coding-standards.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:127:22. `.claude/context/testing-strategy.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:128:23. `.claude/context/security-and-compliance.md`
+project-bootstrap/.claude/agents/engineering/backend-engineer-dotnet.md:129:24. `.claude/context/documentation-standards.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:147:16. `.claude/rules/`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:148:17. `.claude/context/project.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:149:18. `.claude/context/architecture.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:150:19. `.claude/context/repository-structure.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:151:20. `.claude/context/constraints.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:152:21. `.claude/context/coding-standards.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:153:22. `.claude/context/testing-strategy.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:154:23. `.claude/context/security-and-compliance.md`
+project-bootstrap/.claude/agents/engineering/frontend-engineer.md:155:24. `.claude/context/documentation-standards.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:164:| `docs/**`, `.claude/**` | **você mesmo responde** (não delega) |
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:183:6. **Sem co-autoria de IA.** Nenhum commit pode conter `Co-Authored-By: Claude`, `Generated with [Claude Code]` ou similar (regra global de `~/.claude/CLAUDE.md`).
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:254:16. `.claude/rules/`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:255:17. `.claude/context/project.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:256:18. `.claude/context/architecture.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:257:19. `.claude/context/repository-structure.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:258:20. `.claude/context/constraints.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:259:21. `.claude/context/coding-standards.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:260:22. `.claude/context/testing-strategy.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:261:23. `.claude/context/security-and-compliance.md`
+project-bootstrap/.claude/agents/engineering/fullstack-software-engineer.md:262:24. `.claude/context/documentation-standards.md`
+project-bootstrap/.claude/agents/review/arch-reviewer.md:152:      "rule_violated": ".claude/rules/architecture/clean-architecture.md",
+project-bootstrap/.claude/agents/review/arch-reviewer.md:176:- `.claude/rules/architecture/clean-architecture.md`
+project-bootstrap/.claude/agents/review/arch-reviewer.md:177:- `.claude/rules/architecture/ddd.md`
+project-bootstrap/.claude/agents/review/arch-reviewer.md:178:- `.claude/rules/architecture/api-and-contracts.md`
+project-bootstrap/.claude/agents/review/arch-reviewer.md:179:- `.claude/rules/conventions/naming.md`
+project-bootstrap/.claude/agents/review/code-evaluator.md:21:Você é o `code-evaluator`, orquestrador único do pipeline de revisão pós-codificação do `<project_name>` (resolver via bootstrap — ver `.claude/agents/README.md#bootstrap-de-identidade`). Sua responsabilidade é:
+project-bootstrap/.claude/agents/review/code-evaluator.md:305:      "rule_violated": ".claude/rules/architecture/observability.md § PII",
+project-bootstrap/.claude/agents/review/code-evaluator.md:345:- `.claude/agents/review/logic-reviewer.md`
+project-bootstrap/.claude/agents/review/code-evaluator.md:346:- `.claude/agents/review/arch-reviewer.md`
+project-bootstrap/.claude/agents/review/code-evaluator.md:347:- `.claude/agents/review/security-reviewer.md`
+project-bootstrap/.claude/agents/review/code-evaluator.md:348:- `.claude/agents/review/platform-reviewer.md`
+project-bootstrap/.claude/agents/review/code-evaluator.md:349:- `.claude/agents/review/quality-reviewer.md`
+project-bootstrap/.claude/agents/review/code-evaluator.md:350:- `.claude/agents/engineering/fullstack-software-engineer.md`
+project-bootstrap/.claude/agents/review/code-evaluator.md:351:- `.claude/skills/verify-build/`
+project-bootstrap/.claude/agents/review/code-evaluator.md:352:- `.claude/skills/verify-diff-claims/`
+project-bootstrap/.claude/agents/review/code-evaluator.md:353:- `.claude/rules/` (todas)
+project-bootstrap/.claude/agents/review/code-evaluator.md:47:  - .claude/rules/
+project-bootstrap/.claude/agents/review/code-evaluator.md:68:- `.claude/rules/conventions/`, `.claude/rules/architecture/`, `.claude/rules/domain/`, `.claude/rules/testing/`
+project-bootstrap/.claude/agents/review/logic-reviewer.md:143:      "rule_violated": ".claude/rules/domain/money-as-cents.md",
+project-bootstrap/.claude/agents/review/logic-reviewer.md:166:- `.claude/rules/domain/money-as-cents.md`
+project-bootstrap/.claude/agents/review/logic-reviewer.md:167:- `.claude/rules/domain/nbr-5891-rounding.md`
+project-bootstrap/.claude/agents/review/logic-reviewer.md:168:- `.claude/rules/architecture/ddd.md` (apenas invariantes, não estrutura)
+project-bootstrap/.claude/agents/review/logic-reviewer.md:169:- `.claude/rules/testing/tdd.md`
+project-bootstrap/.claude/agents/review/logic-reviewer.md:170:- `.claude/rules/testing/quality-gates.md` (PBTs obrigatórios)
+project-bootstrap/.claude/agents/review/platform-reviewer.md:164:      "fix_suggested": "Adicionar 'ARG TARGETARCH' + 'FROM --platform=$BUILDPLATFORM ...' no estágio build, e usar 'dotnet publish -a $TARGETARCH'. Ver template em .claude/rules/architecture/docker-multi-arch.md.",
+project-bootstrap/.claude/agents/review/platform-reviewer.md:165:      "rule_violated": ".claude/rules/architecture/docker-multi-arch.md",
+project-bootstrap/.claude/agents/review/platform-reviewer.md:189:- `.claude/rules/architecture/docker-multi-arch.md`
+project-bootstrap/.claude/agents/review/platform-reviewer.md:190:- `.claude/rules/architecture/docker-image-security.md`
+project-bootstrap/.claude/agents/review/platform-reviewer.md:191:- `.claude/rules/architecture/observability.md`
+project-bootstrap/.claude/agents/review/platform-reviewer.md:192:- `.claude/rules/conventions/docker-naming.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:195:      "rule_violated": ".claude/rules/conventions/language-policy.md",
+project-bootstrap/.claude/agents/review/quality-reviewer.md:221:- `.claude/rules/conventions/naming.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:222:- `.claude/rules/conventions/language-policy.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:223:- `.claude/rules/conventions/conventional-commits.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:224:- `.claude/rules/conventions/database-naming.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:225:- `.claude/rules/conventions/no-summary-files.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:226:- `.claude/rules/conventions/document-versioning.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:227:- `.claude/rules/testing/tdd.md`
+project-bootstrap/.claude/agents/review/quality-reviewer.md:228:- `.claude/rules/testing/quality-gates.md`
+project-bootstrap/.claude/agents/review/security-reviewer.md:201:      "rule_violated": ".claude/rules/architecture/security-and-compliance.md § PII em logs",
+project-bootstrap/.claude/agents/review/security-reviewer.md:225:- `.claude/rules/architecture/security-and-secrets.md`
+project-bootstrap/.claude/agents/review/security-reviewer.md:226:- `.claude/rules/architecture/security-and-compliance.md`
+project-bootstrap/.claude/agents/review/security-reviewer.md:227:- `.claude/rules/architecture/jwt-authentication.md`
+project-bootstrap/.claude/agents/review/security-reviewer.md:228:- `.claude/rules/architecture/jwt-permissions.md`
+project-bootstrap/.claude/agents/review/security-reviewer.md:229:- `.claude/rules/architecture/mtls-internal-services.md`
+project-bootstrap/.claude/agents/review/security-reviewer.md:230:- `.claude/rules/domain/audit-immutability.md`
+project-bootstrap/.claude/agents/specifications/design-validator.md:55:   - `.claude/rules/`
+project-bootstrap/.claude/agents/specifications/design-writer.md:120:- Rules aplicáveis: `.claude/rules/...`, `docs/rules/...`
+project-bootstrap/.claude/agents/specifications/design-writer.md:73:   - `.claude/rules/`
+project-bootstrap/.claude/agents/specifications/frd-nfrd-validator.md:164:- Status `Rascunho para revisão` → bump de **PATCH** apenas se houver pelo menos uma correção aplicada (ex.: `v0.1.0` → `v0.1.1`); se o documento ainda estiver em `Rascunho` puro, bumpe a data sem incrementar versão (conforme `.claude/rules/conventions/document-versioning.md`).
+project-bootstrap/.claude/agents/specifications/prd-generator.md:828:   - Rules transversais em `.claude/rules/`
+project-bootstrap/.claude/agents/specifications/prd-generator.md:900:- `.claude/rules/conventions/language-policy.md`
+project-bootstrap/.claude/agents/specifications/prd-generator.md:901:- `.claude/rules/conventions/document-versioning.md`
+project-bootstrap/.claude/agents/specifications/prd-generator.md:902:- `.claude/rules/conventions/no-summary-files.md`
+project-bootstrap/.claude/agents/specifications/prd-generator.md:903:- `.claude/agents/specifications/requirements-writer.md` — autor de `requirements.md` por módulo (etapa posterior ao PRD)
+project-bootstrap/.claude/agents/specifications/prd-generator.md:904:- `.claude/agents/architecture/adr-writer.md` — autor de ADRs (quando o PRD identificar decisão arquitetural)
+project-bootstrap/.claude/agents/specifications/product-backlog.md:624:- `.claude/rules/conventions/conventional-commits.md` — formato de mensagens de commit (referenciado no DoD)
+project-bootstrap/.claude/agents/specifications/product-backlog.md:625:- `.claude/rules/testing/quality-gates.md` — coverage thresholds (referenciado no DoD)
+project-bootstrap/.claude/agents/specifications/product-backlog.md:626:- `.claude/rules/conventions/git-worktree.md` — workflow de branches por sprint
+project-bootstrap/.claude/agents/specifications/requirements-validator.md:161:> Coerência com `.claude/rules/conventions/document-versioning.md`.
+project-bootstrap/.claude/agents/specifications/requirements-validator.md:184:**Cross-ref:** Req X.Y de outro módulo, ADR-NNNN, rule `.claude/rules/...`
+project-bootstrap/.claude/agents/specifications/requirements-validator.md:297:> Coerência com `.claude/rules/testing/tdd.md` e `.claude/rules/testing/quality-gates.md` (PBT obrigatório para `Money`, NBR 5891, splits, hashes do ledger).
+project-bootstrap/.claude/agents/specifications/requirements-validator.md:316:> Coerência com `.claude/rules/conventions/language-policy.md`, `.claude/rules/conventions/naming.md` e `.claude/rules/architecture/ddd.md`.
+project-bootstrap/.claude/agents/specifications/requirements-validator.md:368:> Coerência com `.claude/rules/conventions/document-versioning.md`.
+project-bootstrap/.claude/agents/specifications/requirements-validator.md:53:   - `.claude/rules/`
+project-bootstrap/.claude/agents/specifications/requirements-writer.md:128:**Cross-ref:** Req X.Y de outro módulo, ADR-NNNN, rule `.claude/rules/...`
+project-bootstrap/.claude/agents/specifications/requirements-writer.md:165:**Cross-ref:** ADR-NNNN, rule `.claude/rules/...`, outro módulo ou `Não aplicável nesta versão`
+project-bootstrap/.claude/agents/specifications/requirements-writer.md:266:> Coerência com `.claude/rules/conventions/document-versioning.md`.
+project-bootstrap/.claude/agents/specifications/requirements-writer.md:281:> Coerência com `.claude/rules/conventions/language-policy.md` e `.claude/rules/architecture/ddd.md`.
+project-bootstrap/.claude/agents/specifications/requirements-writer.md:328:> Coerência com `.claude/rules/domain/money-as-cents.md` e `.claude/rules/domain/nbr-5891-rounding.md`.
+project-bootstrap/.claude/agents/specifications/requirements-writer.md:341:> Coerência com `.claude/rules/domain/audit-immutability.md`, `.claude/rules/architecture/security-and-compliance.md` e `.claude/rules/architecture/observability.md`.
+project-bootstrap/.claude/agents/specifications/requirements-writer.md:354:- `.claude/rules/`
+project-bootstrap/.claude/agents/specifications/tasks-validator.md:54:   - `.claude/rules/`
+project-bootstrap/.claude/agents/specifications/tasks-writer.md:118:- Rules aplicáveis: `.claude/rules/...`, `docs/rules/...`
+project-bootstrap/.claude/agents/specifications/tasks-writer.md:66:   - `.claude/rules/`
+project-bootstrap/.claude/agents/specifications/trd-generator.md:1197:> **Coerência com convenções do projeto:** seguir `.claude/rules/conventions/language-policy.md` (identificadores em inglês; documentação em pt-BR), `.claude/rules/conventions/naming.md` (kebab-case em arquivos `.md`), `.claude/rules/conventions/database-naming.md` (snake_case em PostgreSQL) e `.claude/rules/conventions/document-versioning.md` (SemVer + status do documento).
+project-bootstrap/.claude/agents/specifications/trd-generator.md:1274:> **Coerência com `.claude/rules/architecture/api-and-contracts.md`:** resources em kebab-case (`/api/v1/voyage-slots`), query params em camelCase, envelope de erro com `correlationId`, breaking changes apenas em nova versão.
+project-bootstrap/.claude/agents/specifications/trd-generator.md:194:> **Convenção de nomes:** todos os arquivos `.md` em **kebab-case lowercase** conforme `.claude/rules/conventions/naming.md`. Não use `TRD.md` em UPPERCASE.
+project-bootstrap/.claude/agents/specifications/trd-generator.md:536:> **Observação para projetos com domínio financeiro/auditável** (verifique `.claude/rules/domain/` e `.claude/rules/conventions/database-naming.md` se existirem neste repositório): valores monetários sempre como inteiros em centavos (`*_cents`, `BIGINT`). Tabelas em `snake_case`. Tabelas de auditoria/ledger são append-only com trigger de imutabilidade.
+project-bootstrap/.claude/agents/specifications/trd-generator.md:648:> **Observação para o projeto:** seguir `.claude/rules/architecture/security-and-secrets.md`, `.claude/rules/architecture/jwt-authentication.md`, `.claude/rules/architecture/jwt-permissions.md` e `.claude/rules/architecture/mtls-internal-services.md`. Nenhum segredo em código/imagem/repositório; mTLS interno via cert-manager + Intermediate CA.
+project-bootstrap/.claude/agents/specifications/trd-generator.md:779:> **Observação para o projeto:** seguir `.claude/rules/architecture/observability.md` (OTel + Prometheus + Loki + Jaeger; `correlationId` obrigatório; PII proibido em logs).
+project-bootstrap/.claude/agents/specifications/trd-generator.md:858:> **Observação para o projeto:** imagens de container são **multi-arch obrigatórias** (`linux/amd64` + `linux/arm64`) — ver `.claude/rules/architecture/docker-multi-arch.md` e `.claude/rules/architecture/docker-image-security.md`. Sem tag `latest` em qualquer ambiente.
+project-bootstrap/.claude/agents/specifications/trd-generator.md:892:> **Observação para o projeto:** thresholds de cobertura por camada conforme `.claude/rules/testing/quality-gates.md` (Domain ≥ 95%/90%, Application ≥ 85%/80%, Infrastructure ≥ 70%, Frontend ≥ 80%/75%). TDD obrigatório em domínio/aplicação (`.claude/rules/testing/tdd.md`).
+project-bootstrap/.claude/commands/README.md:3:Slash commands que automatizam tarefas recorrentes neste repositório (o nome do projeto vem do bloco YAML do `AGENTS.md` raiz — ver `.claude/agents/README.md#bootstrap-de-identidade`).
+project-bootstrap/.claude/commands/coding/coding-loop.md:114:- `.claude/agents/coding/task-coder.md` (agent invocado)
+project-bootstrap/.claude/commands/coding/coding-loop.md:115:- `.claude/agents/coding/sprint-orchestrator.md` (etapa seguinte)
+project-bootstrap/.claude/commands/coding/coding-loop.md:116:- `.claude/commands/coding/deploy-wave.md` (deploy após merge)
+project-bootstrap/.claude/commands/coding/coding-loop.md:117:- `.claude/commands/coding/coding-status.md` (resumo do progresso)
+project-bootstrap/.claude/commands/coding/coding-loop.md:118:- `.claude/rules/conventions/git-worktree.md`
+project-bootstrap/.claude/commands/coding/coding-loop.md:119:- `.claude/rules/conventions/conventional-commits.md`
+project-bootstrap/.claude/commands/coding/coding-status.md:123:- `.claude/agents/coding/task-coder.md` (gera o tracker)
+project-bootstrap/.claude/commands/coding/coding-status.md:124:- `.claude/agents/coding/sprint-orchestrator.md` (atualiza tracker quando PR abre)
+project-bootstrap/.claude/commands/coding/coding-status.md:125:- `.claude/agents/coding/deploy-orchestrator.md` (atualiza tracker pós-deploy)
+project-bootstrap/.claude/commands/coding/coding-status.md:126:- `.claude/commands/coding/coding-loop.md`
+project-bootstrap/.claude/commands/coding/coding-status.md:127:- `.claude/commands/coding/deploy-wave.md`
+project-bootstrap/.claude/commands/coding/deploy-wave.md:115:- `.claude/agents/coding/deploy-orchestrator.md` (agent invocado)
+project-bootstrap/.claude/commands/coding/deploy-wave.md:116:- `.claude/rules/architecture/docker-multi-arch.md`
+project-bootstrap/.claude/commands/coding/deploy-wave.md:117:- `.claude/rules/architecture/docker-image-security.md` (zero tolerance CVE)
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:107:3. `ls .claude/agents/specifications/ .claude/agents/architecture/` — confirmar agentes
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:110:6. `grep -rln -E "\.kiro/specs|docs/specs" .claude/ docs/ 2>/dev/null` — purgar referências antigas se encontrar
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:112:Se workspace tem 152MB+ de material untracked (PDFs/manuais de fornecedor), NÃO faça `git add -A`. Stage apenas `.claude/`, `docs/product/`, `discovery-notes.md`.
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:181:- Agente `discovery-agent`: `.claude/agents/specifications/discovery-agent.md`
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:184:- Agentes `ddd-architect` / `ddd-validator`: `.claude/agents/architecture/`
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:186:- Agente `trd-*`: `.claude/agents/specifications/`
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:188:- Versionamento de documentos: `.claude/rules/conventions/document-versioning.md`
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:189:- Rule de naming kebab-case: `.claude/rules/conventions/naming.md`
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:54:- `.claude/agents/` populado com 16 agentes: discovery-agent, prd-generator, prd-validator, frd-generator, nfrd-generator, frd-nfrd-validator, ddd-architect, ddd-validator, module-generator, module-validator, trd-generator, trd-validator, requirements-writer, design-writer, tasks-writer, adr-writer
+project-bootstrap/.claude/commands/specs/run-spec-pipeline.md:55:- `.claude/rules/` populado com conventions/architecture/domain/testing rules
+project-bootstrap/.claude/commands/specs/specs-loop.md:15:> **Regra inviolável:** documentos gerados por IA SEMPRE saem em status `Rascunho para revisão`. A promoção para `Aprovado para desenvolvimento` é decisão humana após ciclo multi-persona — vide `.claude/rules/conventions/document-versioning.md`.
+project-bootstrap/.claude/commands/specs/specs-loop.md:28:- Agents disponíveis em `.claude/agents/specifications/` (requirements-writer, design-writer, tasks-writer)
+project-bootstrap/.claude/commands/specs/specs-loop.md:55:   - `.claude/rules/conventions/document-versioning.md`
+project-bootstrap/.claude/hooks/pre-tool-use/check-language-policy.sh:59:    echo "[HOOK] Consulte: .claude/rules/conventions/language-policy.md (a definir)" >&2
+project-bootstrap/.claude/hooks/pre-tool-use/enforce-worktree-location.sh:27:  if ! printf '%s' "$cmd" | grep -q '\.claude/worktrees/'; then
+project-bootstrap/.claude/hooks/pre-tool-use/enforce-worktree-location.sh:28:    echo "BLOQUEADO: crie a worktree sob '.claude/worktrees/' (regra conventions/git-worktree.md)." >&2
+project-bootstrap/.claude/hooks/pre-tool-use/enforce-worktree-location.sh:29:    echo "Ex.: git worktree add .claude/worktrees/<escopo>-<desc> -b <tipo>/<escopo>/<desc>" >&2
+project-bootstrap/.claude/hooks/pre-tool-use/enforce-worktree-location.sh:3:# `.claude/worktrees/` (convenção conventions/git-worktree.md).
+project-bootstrap/.claude/hooks/pre-tool-use/validate-naming-conventions.sh:62:    echo "[HOOK] Consulte: .claude/rules/conventions/naming.md (a definir)" >&2
+project-bootstrap/.claude/rules/README.md:74:5. Considere adicionar hook em `.claude/hooks/` para validação automática
+project-bootstrap/.claude/rules/architecture/clean-architecture.md:123:- Agent `.claude/agents/architecture/clean-architecture-reviewer.md` valida estrutura
+project-bootstrap/.claude/rules/architecture/ddd.md:124:- Agent `.claude/agents/architecture/ddd-validator.md` valida modelagem
+project-bootstrap/.claude/rules/architecture/docker-multi-arch.md:398:`.claude/hooks/pre-commit/check-dockerfile-multiarch.sh` valida que todo `Dockerfile` modificado:
+project-bootstrap/.claude/rules/architecture/mtls-internal-services.md:128:Ver `.claude/rules/architecture/jwt-authentication.md` para detalhes de JWT.
+project-bootstrap/.claude/rules/conventions/git-worktree.md:23:3. **Localização canônica: `.claude/worktrees/`.** Todos os worktrees ficam **dentro do repositório**, sob `.claude/worktrees/<escopo>-<descricao>` — ex.: `.claude/worktrees/feature-foo`, `.claude/worktrees/agent-bar`. Centralizar os worktrees ali mantém a organização e alinha com o diretório que a ferramenta de worktree nativa do harness já utiliza.
+project-bootstrap/.claude/rules/conventions/git-worktree.md:25:4. **`.claude/worktrees/` é ignorado pelo `.gitignore`.** Worktree dentro da árvore de trabalho não pode ser versionado; a entrada no `.gitignore` é obrigatória (já contemplada pelo template do projeto).
+project-bootstrap/.claude/rules/conventions/git-worktree.md:41:git worktree add .claude/worktrees/feature-foo -b feat/payments/pix-qrcode-generation
+project-bootstrap/.claude/rules/conventions/git-worktree.md:44:git worktree add .claude/worktrees/agent-bar -b feat/finance/ledger-split-fix
+project-bootstrap/.claude/rules/conventions/git-worktree.md:50:git worktree remove .claude/worktrees/feature-foo
+project-bootstrap/.claude/rules/conventions/git-worktree.md:56:cd .claude/worktrees/agent-bar
+project-bootstrap/.claude/rules/conventions/git-worktree.md:68:# ERRADO: criar worktree como diretório irmão do repo (fora de .claude/worktrees/)
+project-bootstrap/.claude/rules/conventions/git-worktree.md:72:cd .claude/worktrees/agent-bar
+project-bootstrap/.claude/rules/conventions/git-worktree.md:77:git worktree add .claude/worktrees/feature-foo  # já existia de outra feature
+project-bootstrap/.claude/rules/conventions/git-worktree.md:82:- `git worktree list` deve mostrar apenas worktrees ativos sob `.claude/worktrees/`, com branch correspondente
+project-bootstrap/.claude/rules/conventions/git-worktree.md:84:- `.claude/worktrees/` presente no `.gitignore`
+project-bootstrap/.claude/rules/conventions/language-policy.md:21:2. **Em português brasileiro obrigatoriamente:** READMEs, CHANGELOGs, ADRs, comentários explicativos, mensagens de erro exibidas ao usuário, documentação de API (campo `description` em OpenAPI), nomes de campos em formulários de UI, conteúdo de e-mails e notificações, docs em `.claude/rules/`, `.claude/agents/`, `.claude/commands/`, `docs/product/modules/`.
+project-bootstrap/.claude/rules/conventions/language-policy.md:60:- Hook `.claude/hooks/pre-tool-use/check-language-policy.sh` detecta identificadores PT-BR em `.cs`
+project-bootstrap/.claude/rules/conventions/lsp-impact-analysis.md:38:> **Pré-requisito de ambiente:** o passo de validação depende de que o **diagnóstico da stack** (coluna direita) esteja instalado — é ele, não o LSP, que valida a edição. O LSP server é desejável para navegação, mas secundário. Rode `bash .claude/scripts/doctor.sh` para verificar o que falta por stack detectada no repo (e `--install` para instalar os faltantes, opt-in). O `doctor.sh` apenas reporta por padrão e nunca instala sozinho.
+project-bootstrap/.claude/rules/conventions/naming.md:162:- Hook `.claude/hooks/pre-tool-use/validate-naming-conventions.sh` verifica regex blocklist de prefixos de tecnologia em classes
+project-bootstrap/.claude/rules/conventions/no-summary-files.md:39:- Rules e policies em `.claude/rules/` e `docs/policies/`
+project-bootstrap/.claude/rules/domain/money-as-cents.md:31:6. **Aritmética:** todas as operações sobre `Money` respeitam NBR 5891. Ver `.claude/rules/domain/nbr-5891-rounding.md`.
+project-bootstrap/.claude/rules/frontend/design-system.md:88:- [`.claude/rules/conventions/naming.md`](../conventions/naming.md), [`.claude/rules/conventions/language-policy.md`](../conventions/language-policy.md), [`.claude/rules/testing/quality-gates.md`](../testing/quality-gates.md), [`.claude/rules/testing/tdd.md`](../testing/tdd.md)
+project-bootstrap/.claude/scripts/doctor.sh:13:#   bash .claude/scripts/doctor.sh            # só reporta (default)
+project-bootstrap/.claude/scripts/doctor.sh:14:#   bash .claude/scripts/doctor.sh --install  # reporta e instala faltantes (opt-in)
+project-bootstrap/.claude/settings.json:9:            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/pre-tool-use/enforce-worktree-location.sh"
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:14:> **Fonte de verdade de naming e localização:** a política do projeto está em `.claude/rules/conventions/git-worktree.md`. Esta skill é o **procedimento acionável** que a complementa (detecção de isolamento, tool nativa, setup, baseline). Em caso de divergência, a rule vence.
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:154:| Sem tool nativa | Fallback git worktree em `.claude/worktrees/` (Passo 1b) |
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:155:| Naming / localização | Conforme `git-worktree.md` (`.claude/worktrees/<escopo>-<descricao>`) |
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:173:- **Problema:** criar o worktree como diretório irmão do repo (`../<escopo>-<descricao>`) quando a rule manda `.claude/worktrees/<escopo>-<descricao>`.
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:174:- **Correção:** seguir `git-worktree.md`; criar sempre sob `.claude/worktrees/`; preferência explícita do usuário vence o padrão.
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:188:- Criar worktree fora de `.claude/worktrees/` (ex.: diretório irmão do repo).
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:196:- Seguir naming e localização da rule `git-worktree.md` (`.claude/worktrees/<escopo>-<descricao>`).
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:207:git worktree remove .claude/worktrees/<escopo>-<descricao>
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:61:Ferramentas nativas cuidam de posicionamento de diretório, criação de branch e limpeza automaticamente — e neste projeto já posicionam os worktrees sob `.claude/worktrees/`, exatamente a localização canônica da rule. Usar `git worktree add` quando existe uma tool nativa cria estado fantasma que o harness não enxerga nem gerencia.
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:71:Neste repositório, worktrees são criados **dentro do repo**, sob `.claude/worktrees/<escopo>-<descricao>` — a mesma localização que a ferramenta nativa usa. O diretório `.claude/worktrees/` é **ignorado pelo `.gitignore`** (worktree dentro da árvore de trabalho não pode ser versionado).
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:73:- **Worktree local:** `.claude/worktrees/<escopo>-<descricao>` — ex.: `.claude/worktrees/feature-pix-qrcode`, `.claude/worktrees/agent-ledger-fix`. (Sem prefixo de tecnologia, conforme a rule.)
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:74:- **Branch:** `<tipo>/<escopo>/<descricao-em-kebab-case>` — ex.: `feat/payments/pix-qrcode-generation`, `fix/finance/ledger-split-rounding`. O `<tipo>` segue os Conventional Commits do projeto (ver `.claude/rules/conventions/conventional-commits.md`).
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:85:git worktree add .claude/worktrees/<escopo>-<descricao> -b "<tipo>/<escopo>/<descricao>"
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:86:cd .claude/worktrees/<escopo>-<descricao>
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:89:# git worktree add .claude/worktrees/feature-pix-qrcode -b feat/payments/pix-qrcode-generation
+project-bootstrap/.claude/skills/using-git-worktrees/SKILL.md:92:> **Garantia de `.gitignore`:** confirme que `.claude/worktrees/` (ou `.claude/` inteiro) está no `.gitignore` antes de criar. Se não estiver, adicione a entrada primeiro — caso contrário o worktree poluirá o `git status`.
+project-bootstrap/.claude/skills/verify-build/SKILL.md:196:- `.claude/rules/testing/quality-gates.md` (thresholds de coverage)
+project-bootstrap/.claude/skills/verify-build/SKILL.md:197:- `.claude/rules/testing/tdd.md`
+project-bootstrap/.claude/skills/verify-diff-claims/SKILL.md:107:Match → finding `CLAIM-AUTHORSHIP` severidade **BLOCKER** (regra global de `~/.claude/CLAUDE.md`).
+project-bootstrap/.claude/skills/verify-diff-claims/SKILL.md:141:      "rule_violated": "~/.claude/CLAUDE.md — Convenções de commit"
+project-bootstrap/.claude/skills/verify-diff-claims/SKILL.md:174:- `~/.claude/CLAUDE.md` — proibição de co-autoria de IA
+project-bootstrap/.claude/skills/verify-diff-claims/SKILL.md:175:- `.claude/rules/conventions/conventional-commits.md` — scopes canônicos
+project-bootstrap/.gitignore:2:.claude/settings.local.json
+project-bootstrap/.gitignore:3:.claude/cache/
+project-bootstrap/.gitignore:5:# Git worktrees (skill using-git-worktrees) — criados em .claude/worktrees/<escopo>-<descricao>
+project-bootstrap/.gitignore:6:.claude/worktrees/
+project-bootstrap/AGENTS.md:100:2. Ler os `.claude/rules/` das categorias aplicáveis à tarefa.
+project-bootstrap/AGENTS.md:29:O bloco YAML no topo deste arquivo é a **fonte canônica de identidade do projeto** consumida pelos agentes em `.claude/agents/`. Sempre que um agente precisar do nome do projeto, slug do repo no GitHub, branch padrão, project key do Jira ou subdomínio Atlassian, ele deve **ler daqui** — nunca hardcodar.
+project-bootstrap/AGENTS.md:3:# Agentes em .claude/agents/ leem este bloco para resolver placeholders
+project-bootstrap/AGENTS.md:41:**Protocolo de bootstrap de identidade:** antes de usar qualquer placeholder, o agente lê este YAML; para cada campo necessário ausente, tenta derivar via shell/MCP, valida por teste de conectividade (`gh repo view`, JQL `project = <jira_key>`), persiste o valor aqui via `Edit` e só então prossegue. Idempotente — campos já preenchidos não são re-perguntados. Detalhes em [`.claude/agents/README.md`](./.claude/agents/README.md) (seção *Bootstrap de identidade*).
+project-bootstrap/AGENTS.md:45:Este projeto segue as diretrizes em `.claude/rules/`. Antes de qualquer mudança, consulte os arquivos da categoria aplicável:
+project-bootstrap/AGENTS.md:53:Catálogo completo em [`.claude/rules/README.md`](./.claude/rules/README.md).
+project-bootstrap/AGENTS.md:73:Este harness inclui um pipeline de **Spec-Driven Development** pronto, com agentes especializados em `.claude/agents/` e comandos orquestradores em `.claude/commands/specs/`:
+project-bootstrap/AGENTS.md:93:- **Secrets nunca commitados** (`architecture/security-and-secrets.md`); hooks em `.claude/hooks/` bloqueiam, mas não confie só neles.
