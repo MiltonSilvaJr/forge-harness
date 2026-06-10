@@ -34,9 +34,13 @@ setup() {
 
 # ── C1 — commands ────────────────────────────────────────────────────────────
 
-@test "C1: exactly 8 command files (README excluded)" {
+@test "C1: command count (source: exactly 8; generated: >= 8 — additions allowed)" {
   count=$(find "$CMDS_DIR" -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')
-  [ "$count" -eq 8 ]
+  if [ "$MODE" = "generated" ]; then
+    [ "$count" -ge 8 ]
+  else
+    [ "$count" -eq 8 ]
+  fi
 }
 
 @test "C1: the 8 contract command names all exist" {
@@ -46,13 +50,15 @@ setup() {
   done
 }
 
-@test "C1: deprecated alias wrappers exist for all 8 commands (generated mode only)" {
+@test "C1: deprecated alias wrappers exist for EXACTLY the 8 legacy commands (generated mode only)" {
   [ "$MODE" = "generated" ] || skip "source mode has no wrappers"
   for cmd in run-spec-pipeline specs-loop coding-loop coding-status deploy-wave new-adr update-changelog scaffold-tdd; do
     [ -f "$WRAPPERS_DIR/${cmd}.md" ]
     grep -q "DEPRECATED" "$WRAPPERS_DIR/${cmd}.md"
     grep -q "/forge:${cmd}" "$WRAPPERS_DIR/${cmd}.md"
   done
+  wrapper_count=$(find "$WRAPPERS_DIR" -maxdepth 1 -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')
+  [ "$wrapper_count" -eq 8 ]
 }
 
 # ── C2 — agents ──────────────────────────────────────────────────────────────

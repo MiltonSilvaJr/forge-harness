@@ -49,6 +49,71 @@ find_marker() {
        -o -name "$1" -print 2>/dev/null | head -1
 }
 
+# ── Forge harness (§19.1) — roda mesmo sem stack detectada ──────────────────
+check_harness() {
+  [ -d "$ROOT/.forge" ] || return 0
+  echo "Forge harness"
+
+  for f in FORGE.md forge.yaml; do
+    if [ -f "$ROOT/.forge/$f" ]; then ok "harness: .forge/$f"
+    else miss "harness: .forge/$f ausente"; MISSING_DIAG=1; fi
+  done
+
+  if [ -f "$ROOT/AGENTS.md" ]; then
+    if head -1 "$ROOT/AGENTS.md" | grep -q 'Generated from .forge/FORGE.md'; then
+      ok "harness: AGENTS.md é projeção gerada do FORGE.md"
+    else
+      info "harness: AGENTS.md sem header de arquivo gerado (rode .forge/scripts/sync-adapters.sh)"
+    fi
+  else
+    miss "harness: AGENTS.md ausente (rode .forge/scripts/sync-adapters.sh)"; MISSING_DIAG=1
+  fi
+
+  for link in CLAUDE.md QWEN.md GEMINI.md; do
+    if [ -L "$ROOT/$link" ] && [ "$(readlink "$ROOT/$link")" = "AGENTS.md" ]; then
+      ok "harness: $link -> AGENTS.md (symlink)"
+    elif [ -f "$ROOT/$link" ] && head -1 "$ROOT/$link" | grep -q 'Generated from .forge/FORGE.md'; then
+      ok "harness: $link (cópia materializada gerada)"
+    else
+      miss "harness: $link não resolve para AGENTS.md"; MISSING_DIAG=1
+    fi
+  done
+
+  # infra that generates/validates the adapter legitimately mentions the target dir;
+  # the leak check guards CONTENT (agents/rules/commands/skills), not the machinery
+  leaks="$(grep -rl '\.claude/' "$ROOT/.forge" 2>/dev/null | grep -vE '/(adapters|scripts/lib)/|/scripts/doctor\.sh$' | wc -l | tr -d ' ')"
+  if [ "$leaks" -eq 0 ]; then ok "harness: fonte canônica sem refs .claude/"
+  else miss "harness: $leaks arquivo(s) da fonte canônica com refs .claude/"; MISSING_DIAG=1; fi
+
+  orphans="$(grep -rl '<PROJECT_[A-Z_]*>' "$ROOT/.forge" 2>/dev/null | wc -l | tr -d ' ')"
+  if [ "$orphans" -eq 0 ]; then ok "harness: sem placeholders <PROJECT_*> órfãos"
+  else miss "harness: $orphans arquivo(s) com placeholders <PROJECT_*> não preenchidos"; MISSING_DIAG=1; fi
+
+  lock="$ROOT/.forge/adapters/claude.lock.yaml"
+  if [ -f "$lock" ]; then
+    drift=0
+    while read -r dest hash; do
+      [ -n "$dest" ] || continue
+      if [ "$hash" = "symlink" ]; then
+        { [ -L "$ROOT/$dest" ] || { [ -f "$ROOT/$dest" ] && head -1 "$ROOT/$dest" | grep -q 'Generated from'; }; } || drift=$((drift + 1))
+      elif [ -f "$ROOT/$dest" ]; then
+        actual="sha256:$(shasum -a 256 "$ROOT/$dest" | cut -d' ' -f1)"
+        [ "$actual" = "$hash" ] || drift=$((drift + 1))
+      else
+        drift=$((drift + 1))
+      fi
+    done <<EOF_LOCK
+$(awk '/^  - dest: /{d=$3} /^    sha256: /{print d" "$2}' "$lock")
+EOF_LOCK
+    if [ "$drift" -eq 0 ]; then ok "harness: adapter claude sem drift (lockfile íntegro)"
+    else miss "harness: $drift alvo(s) do adapter claude com drift (rode .forge/scripts/sync-adapters.sh)"; MISSING_DIAG=1; fi
+  else
+    info "harness: claude.lock.yaml ausente (rode .forge/scripts/sync-adapters.sh)"
+  fi
+  echo
+}
+check_harness
+
 DETECTED=""
 
 [ -n "$(find_marker '*.sln')$(find_marker '*.csproj')" ] && DETECTED="$DETECTED dotnet"
@@ -58,6 +123,10 @@ DETECTED=""
 
 if [ -z "$DETECTED" ]; then
   echo "Nenhuma stack reconhecida no repositório (.NET / Node-TS / Python / Kotlin)."
+  if [ "$MISSING_DIAG" -eq 1 ]; then
+    echo "${RED}Problemas no harness Forge detectados (ver acima).${RST}"
+    exit 1
+  fi
   echo "Nada a verificar."
   exit 0
 fi
