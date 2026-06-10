@@ -1,0 +1,22 @@
+version: 1
+harness:
+  name: forge
+  installed_at: "<INSTALLED_AT>"
+  template_version: "0.1.0-dev"
+  adapters:
+    - claude
+specs:
+  root: .forge/specs
+  active: .forge/specs/active
+  archived: .forge/specs/archived
+  baseline: .forge/product/current
+graph:
+  enabled: true
+  root: .forge/graph
+quality:
+  enabled: false
+  evals_root: .forge/evals
+  runners: .forge/runners.yaml
+  require_tests_before_archive: true
+  require_traceability_before_archive: true
+  require_human_approval_before_archive: true
