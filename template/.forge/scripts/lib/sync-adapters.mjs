@@ -84,6 +84,12 @@ const emit = (destAbs, content, srcAbs = null) => {
 };
 
 // ── 1. commands → .claude/commands/forge/ + deprecated wrappers ─────────────
+// Wrappers exist ONLY for the 8 legacy commands of contract clause C1 — new Forge commands
+// (doctor, status, sync-adapters, …) never had a non-namespaced name and get no alias.
+const LEGACY_COMMANDS = new Set([
+  'run-spec-pipeline', 'specs-loop', 'coding-loop', 'coding-status',
+  'deploy-wave', 'new-adr', 'update-changelog', 'scaffold-tdd',
+]);
 const commandFiles = walk(join(FORGE, 'commands')).filter(
   (f) => f.endsWith('.md') && basename(f) !== 'README.md'
 );
@@ -91,6 +97,7 @@ for (const src of commandFiles) {
   const name = basename(src, '.md');
   const content = readFileSync(src, 'utf8');
   emit(join(ROOT, '.claude/commands/forge', `${name}.md`), content, src);
+  if (!LEGACY_COMMANDS.has(name)) continue;
   const wrapper = `---
 description: "[DEPRECATED] Alias de /forge:${name} mantido pelo contrato de compatibilidade (C1); remocao prevista na W8.3. Prefira /forge:${name}."
 ---
