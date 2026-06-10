@@ -4,7 +4,7 @@
 |---|---|
 | **Versão** | 1.0 |
 | **Data** | 2026-06-10 |
-| **Status** | Rascunho para revisão |
+| **Status** | Aprovado |
 | **Wave** | W0.3 (docs/plans/01-mvp1-forge-canonico.md) |
 | **Referência** | §22.1 do doc de projeto (Fase 0 — contrato de compatibilidade) |
 | **Baseline** | `snapshot/project-bootstrap/` @ `snapshot/MANIFEST.sha256` (verificado por `tests/snapshot/verify-manifest.sh`) |
@@ -86,3 +86,4 @@ O `.gitignore` instalado continua cobrindo settings locais, cache e worktrees (p
 ## Controle de versão do documento
 
 - Milton Silva - 2026-06-10 - Versão 1.0: contrato inicial derivado do snapshot congelado (W0.2) e da leitura de doctor.sh/settings.json/AGENTS.md.
+- Milton Silva - 2026-06-10 - Gate W0.3 decidido: **Approve** (HITL via AskUserQuestion; bats 13/13 verde contra o snapshot). Status → Aprovado.
