@@ -95,9 +95,13 @@ PYEOF
 
 # ── C2 — agents ──────────────────────────────────────────────────────────────
 
-@test "C2: exactly 35 agent files (README excluded)" {
+@test "C2: agent count (source: exactly 35; generated: >= 35 — additions allowed, contract v1.1)" {
   count=$(find "$CLAUDE_DIR/agents" -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')
-  [ "$count" -eq 35 ]
+  if [ "$MODE" = "generated" ]; then
+    [ "$count" -ge 35 ]
+  else
+    [ "$count" -eq 35 ]
+  fi
 }
 
 @test "C2: agent counts per category (15/6/6/4/3/1)" {
@@ -124,9 +128,13 @@ PYEOF
 
 # ── C4 — skills ──────────────────────────────────────────────────────────────
 
-@test "C4: exactly 4 skills, expected names" {
+@test "C4: skill count (source: exactly 4; generated: >= 4 — additions allowed, contract v1.1) + legacy names" {
   count=$(find "$CLAUDE_DIR/skills" -name 'SKILL.md' | wc -l | tr -d ' ')
-  [ "$count" -eq 4 ]
+  if [ "$MODE" = "generated" ]; then
+    [ "$count" -ge 4 ]
+  else
+    [ "$count" -eq 4 ]
+  fi
   for skill in design-system-creator using-git-worktrees verify-build verify-diff-claims; do
     [ -f "$CLAUDE_DIR/skills/$skill/SKILL.md" ]
   done

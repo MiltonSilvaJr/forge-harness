@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Versão** | 1.0 |
+| **Versão** | 1.1 |
 | **Data** | 2026-06-10 |
 | **Status** | Aprovado |
 | **Wave** | W0.3 (docs/plans/01-mvp1-forge-canonico.md) |
@@ -29,7 +29,7 @@ No adapter gerado, os commands passam ao namespace `/forge:*` (ex.: `/forge:run-
 
 ### C2 — Agents (35 + README)
 
-Os 35 agents permanecem disponíveis com o mesmo conteúdo funcional, por categoria: specifications (15), architecture (6), review (6), engineering (4), coding (3), code-review (1). O `README.md` de índice acompanha.
+Os 35 agents permanecem disponíveis com o mesmo conteúdo funcional, por categoria: specifications (15), architecture (6), review (6), engineering (4), coding (3), code-review (1). O `README.md` de índice acompanha. **Cláusula aditiva (v1.1):** como em C1, o adapter gerado pode conter agents NOVOS do Forge (contagem `>= 35` no modo generated); a cláusula garante que nada do legado se perdeu, não impede crescimento. O snapshot (source) permanece exatamente 35.
 
 ### C3 — Rules (27 + README)
 
@@ -37,7 +37,7 @@ As 27 rules permanecem disponíveis, por categoria: architecture (12), conventio
 
 ### C4 — Skills (4)
 
-`design-system-creator`, `using-git-worktrees`, `verify-build`, `verify-diff-claims` permanecem instaladas e dispará­veis (frontmatter `name`/`description` preservado em conteúdo equivalente).
+`design-system-creator`, `using-git-worktrees`, `verify-build`, `verify-diff-claims` permanecem instaladas e dispará­veis (frontmatter `name`/`description` preservado em conteúdo equivalente). **Cláusula aditiva (v1.1):** o adapter gerado pode conter skills NOVAS do Forge (contagem `>= 4` no modo generated; primeira adição: `gate-runner`, W2.2). O snapshot (source) permanece exatamente 4, e as 4 skills legadas são exigidas em ambos os modos.
 
 ### C5 — Hooks (5 scripts; 1 wired)
 
@@ -86,4 +86,5 @@ O `.gitignore` instalado continua cobrindo settings locais, cache e worktrees (p
 ## Controle de versão do documento
 
 - Milton Silva - 2026-06-10 - Versão 1.0: contrato inicial derivado do snapshot congelado (W0.2) e da leitura de doctor.sh/settings.json/AGENTS.md.
+- Milton Silva - 2026-06-11 - Versão 1.1: cláusulas C2/C4 tornadas aditivas no modo generated (>= 35 agents / >= 4 skills), espelhando C1 — o contrato garante preservação do legado, não congela crescimento do Forge. Motivada pela skill `gate-runner` (W2.2).
 - Milton Silva - 2026-06-10 - Gate W0.3 decidido: **Approve** (HITL via AskUserQuestion; bats 13/13 verde contra o snapshot). Status → Aprovado.
