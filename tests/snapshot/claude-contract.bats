@@ -50,6 +50,38 @@ setup() {
   done
 }
 
+@test "C1: commands README is not projected — would register a phantom /forge:README (generated mode only)" {
+  [ "$MODE" = "generated" ] || skip "source snapshot legitimately keeps its README"
+  [ ! -e "$CMDS_DIR/README.md" ]
+  [ ! -e "$WRAPPERS_DIR/README.md" ]
+}
+
+@test "C1: every projected command has a YAML-parseable frontmatter with description (generated mode only)" {
+  [ "$MODE" = "generated" ] || skip "legacy snapshot frontmatters are frozen by contract"
+  command -v python3 >/dev/null || skip "python3 unavailable"
+  python3 - "$CMDS_DIR" <<'PYEOF'
+import sys, re, pathlib
+try:
+    import yaml
+except ImportError:
+    sys.exit(0)
+bad = []
+for f in pathlib.Path(sys.argv[1]).rglob('*.md'):
+    text = f.read_text()
+    m = re.match(r'^---\n(.*?)\n---', text, re.S)
+    if not m:
+        bad.append(f"{f}: no frontmatter"); continue
+    try:
+        data = yaml.safe_load(m.group(1))
+    except yaml.YAMLError as e:
+        bad.append(f"{f}: {str(e).splitlines()[0]}"); continue
+    if not (data or {}).get('description'):
+        bad.append(f"{f}: missing description")
+if bad:
+    print('\n'.join(bad)); sys.exit(1)
+PYEOF
+}
+
 @test "C1: deprecated alias wrappers exist for EXACTLY the 8 legacy commands (generated mode only)" {
   [ "$MODE" = "generated" ] || skip "source mode has no wrappers"
   for cmd in run-spec-pipeline specs-loop coding-loop coding-status deploy-wave new-adr update-changelog scaffold-tdd; do

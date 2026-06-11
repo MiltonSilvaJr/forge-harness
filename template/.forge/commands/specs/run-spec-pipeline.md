@@ -10,10 +10,10 @@ arguments:
     description: Estratégia de regeneração. `incremental` (pula fases cujos artefatos já estão aprovados) ou `full-rerun` (re-executa tudo, bumpa versões). Default `incremental`.
     required: false
   - name: --modules
-    description: Lista de módulos para Fase 7 separada por vírgula (ex.: `identity-access,transaction-processor`). Se omitido, especifica TODOS os módulos do `module-generator`. Para smoke test use 3-5 módulos do Tier 1.
+    description: "Lista de módulos para Fase 7 separada por vírgula (ex.: `identity-access,transaction-processor`). Se omitido, especifica TODOS os módulos do `module-generator`. Para smoke test use 3-5 módulos do Tier 1."
     required: false
   - name: --discovery-mode
-    description: `interactive` (Q1-Q11 com humano) ou `auto-extract` (sessão principal extrai do workspace). Default `auto-extract` se Brownfield, `interactive` se Greenfield.
+    description: "`interactive` (Q1-Q11 com humano) ou `auto-extract` (sessão principal extrai do workspace). Default `auto-extract` se Brownfield, `interactive` se Greenfield."
     required: false
 ---
 
