@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# Gate W4.2 — impact / baseline extract / archive integration (§16.4, §13.2):
+#   [1] impact de uma semente lista EXATAMENTE os dependentes transitivos esperados
+#   [2] impact --files de folha (money) → todos que dependem dela; de raiz (handler) → só ela
+#   [3] baseline extract gera capability stubs por boundary (dry-run + real); não sobrescreve
+#   [4] archive de change que toca código SEM impact.json → FAIL pedindo /forge:impact
+#   [5] impact --change grava impact.json fresco → archive passa o pré-flight de impacto
+#   [6] impact.json stale (grafo mudou) → archive FAIL pedindo re-scan
+set -euo pipefail
+
+WS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+T="$(mktemp -d /tmp/forge-w42.XXXXXX)"
+trap 'rm -rf "$T"' EXIT
+cp -R "$WS/template/.forge" "$T/.forge"
+S="$T/.forge/scripts"
+
+# fixture: domain/money <- application/pay <- api/handler (chain p/ impact)
+# + services/billing (boundary nomeado p/ baseline extract — caso real services/<nome>)
+mkdir -p "$T/src/domain" "$T/src/application" "$T/src/api" "$T/services/billing"
+printf 'export class Money { constructor(public c:number){} }\n' > "$T/src/domain/money.ts"
+printf "import { Money } from '../domain/money';\nexport const pay=(c:number)=>new Money(c);\n" > "$T/src/application/pay.ts"
+printf "import { pay } from '../application/pay';\nexport const h=()=>pay(1);\n" > "$T/src/api/handler.ts"
+printf 'export class Invoice {}\n' > "$T/services/billing/invoice.ts"
+FORGE_ROOT="$T" bash "$S/graph.sh" build >/dev/null
+
+echo "[1] impact transitivo exato (semente = money)"
+out="$(FORGE_ROOT="$T" bash "$S/impact.sh" --files src/domain/money.ts)"
+echo "$out" | grep -q 'src/domain/money.ts'
+echo "$out" | grep -q 'src/application/pay.ts'
+echo "$out" | grep -q 'src/api/handler.ts'
+# exatamente 3 impactados, nem mais nem menos
+n="$(echo "$out" | grep -c '^  src/')"
+[ "$n" -eq 3 ]
+echo "OK [1] (3 impactados: money + pay + handler)"
+
+echo "[2] folha vs raiz"
+# raiz (handler) não é dependência de ninguém → só ela impactada
+out="$(FORGE_ROOT="$T" bash "$S/impact.sh" --files src/api/handler.ts)"
+n="$(echo "$out" | grep -c '^  src/')"
+[ "$n" -eq 1 ] && echo "$out" | grep -q 'src/api/handler.ts'
+echo "OK [2]"
+
+echo "[3] baseline extract por boundary (services/<nome> -> capability)"
+out="$(FORGE_ROOT="$T" bash "$S/baseline-extract.sh" --dry-run)"
+echo "$out" | grep -q 'billing'   # services/billing vira capability candidata 'billing'
+FORGE_ROOT="$T" bash "$S/baseline-extract.sh" >/dev/null
+[ -f "$T/.forge/product/current/capabilities/billing/spec.yaml" ]
+node "$WS/tools/validate-yaml.mjs" "$WS/template/.forge/schemas/baseline-capability.schema.json" "$T/.forge/product/current/capabilities/billing/spec.yaml" >/dev/null
+# segunda rodada não sobrescreve / não duplica
+out2="$(FORGE_ROOT="$T" bash "$S/baseline-extract.sh")"
+echo "$out2" | grep -q 'no new capability stubs'
+echo "OK [3]"
+
+echo "[4] archive sem impact.json (change toca codigo) → FAIL"
+# change verified scale-0 que declara affected_paths de código
+(cd "$T" && bash "$S/spec-new.sh" feat-impact --type feature --scale 0 >/dev/null)
+perl -0pi -e 's/^affected_paths: \[\]$/affected_paths:\n  - services\/billing/m' "$T/.forge/specs/active/feat-impact/manifest.yaml"
+(cd "$T" && bash "$S/spec-transition.sh" feat-impact tasks-ready >/dev/null
+            bash "$S/spec-transition.sh" feat-impact implementing >/dev/null)
+perl -pi -e 's/^(\s*)- \[ \] /$1- [X] /' "$T/.forge/specs/active/feat-impact/tasks.md"
+(cd "$T" && bash "$S/spec-transition.sh" feat-impact implemented >/dev/null
+            bash "$S/spec-verify.sh" feat-impact >/dev/null
+            bash "$S/approval-log.sh" feat-impact --gate implementation_verified --decision approve >/dev/null
+            bash "$S/spec-transition.sh" feat-impact verified >/dev/null
+            bash "$S/approval-log.sh" feat-impact --gate human_archive_approval --decision approve >/dev/null)
+cat > "$T/.forge/specs/active/feat-impact/spec-delta.yaml" <<'EOF'
+operations:
+  - op: add_requirement
+    capability: billing
+    requirement_id: REQ-BIL-001
+    requirement:
+      id: REQ-BIL-001
+      title: Sample requirement touching code
+      normative: SHALL
+EOF
+set +e
+out="$(FORGE_ROOT="$T" bash "$S/validate-archive.sh" feat-impact 2>&1)"; rc=$?
+set -e
+[ "$rc" -ne 0 ] && echo "$out" | grep -q 'impact.json missing'
+echo "OK [4]"
+
+echo "[5] impact --change grava impact.json → archive passa o pre-flight de impacto"
+FORGE_ROOT="$T" bash "$S/impact.sh" --change feat-impact >/dev/null
+[ -f "$T/.forge/specs/active/feat-impact/impact.json" ]
+node "$WS/tools/validate-yaml.mjs" "$WS/template/.forge/schemas/graph.schema.json" "$T/.forge/graph/graph.json" >/dev/null
+# validate-archive não deve mais falhar por impact (pode falhar por outra coisa? não — tudo pronto)
+FORGE_ROOT="$T" bash "$S/validate-archive.sh" feat-impact >/dev/null
+echo "OK [5]"
+
+echo "[6] impact.json stale (grafo mudou) → archive FAIL"
+printf "\nexport const extra = 99;\n" >> "$T/src/domain/money.ts"
+FORGE_ROOT="$T" bash "$S/graph.sh" update >/dev/null   # fingerprint muda
+set +e
+out="$(FORGE_ROOT="$T" bash "$S/validate-archive.sh" feat-impact 2>&1)"; rc=$?
+set -e
+[ "$rc" -ne 0 ] && echo "$out" | grep -q 'stale'
+echo "OK [6]"
+
+echo "OK"
