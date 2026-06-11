@@ -69,3 +69,4 @@
 
 - Teste manual C10 no Claude Code real: **em andamento no piloto azim-crm** (status/doctor/commands ✓ em 2026-06-10; falta exercitar agents, skills e o bloqueio do worktree-guard).
 - Decisão sobre rules/context.md acopladas ao projeto de referência (descoberta W1.5 — ver `docs/plans/revisao-agents-skills.md` §Descobertas).
+- **Change `forge-conflict-guardrails` (fila pós-MVP4, escopo G1–G4 + fonte da verdade de dados):** achado do piloto azim-crm — conflito arquitetural (multi-tenancy/RLS) detectado mas não-bloqueante. Plano em `docs/plans/guardrail-governanca-dados.md` (HITL 2026-06-11). **Absorve** a pendência de rules acopladas acima (a `database-naming.md` em drift vira rules de store ancoradas em ADR).
