@@ -55,3 +55,16 @@ for (const decl of decls) {
   }
 }
 console.log(`OK ${decls.length} adapter declarations vs adapter-capability schema (${decls.map((d) => d.replace('.yaml', '')).join(', ')})`);
+
+// W2.0 — spec-manifest schema compiles and the dogfooding change manifest conforms
+// (ajv parity check for the zero-dep validator in template/.forge/scripts/lib/validate-spec.mjs)
+const specManifest = JSON.parse(read('template/.forge/schemas/spec-manifest.schema.json'));
+const validateSpecManifest = ajv.compile(specManifest);
+console.log('OK spec-manifest.schema.json compiles');
+const dogfood = parse(read('.forge/specs/active/create-forge-project-harness/manifest.yaml'));
+if (!validateSpecManifest(dogfood)) {
+  console.error('FAIL dogfooding manifest vs spec-manifest schema');
+  console.error(JSON.stringify(validateSpecManifest.errors, null, 2));
+  process.exit(1);
+}
+console.log('OK dogfooding manifest (create-forge-project-harness) vs spec-manifest schema');
