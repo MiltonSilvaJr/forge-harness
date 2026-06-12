@@ -73,7 +73,23 @@ queries úteis para "consultar o grafo antes de ler arquivos"). 4 gaps de qualid
 
 | ID | Sev | Achado | Triagem |
 |----|-----|--------|---------|
-| G1 | MEDIUM | `.forge/graph/graph.json` **não é gitignored** → 7.5 MB de artefato de build seria commitado. | **Change candidato:** bloco .gitignore do Forge deve ignorar `.forge/graph/graph.json` (ou Git LFS, como previa a W8.2). |
-| G2 | MEDIUM | Engine ingere dirs de **build/output**: `frontend/backoffice/storybook-static/` (bundles minificados — `globals-runtime.js` 76.750 LOC!) e `docs/_archive/`. Infla nós e órfãos. | **Change candidato:** lista de exclusão do engine precisa cobrir `storybook-static`, `_archive`, `dist`, `.next`, `wwwroot`, `*.min.js`. |
-| G3 | MEDIUM | Classificação de camada: **55% dos nós = `unknown`** (1167/2137). Heurística C# perde `Attributes/`, `Middlewares/`, `Endpoints/`, `Extensions/`. Enfraquece análise por camada. | **Backlog:** ampliar heurística de layer p/ padrões .NET comuns. |
-| G4 | MEDIUM | Arestas C# são 98% `namespace` (co-membership), não dependência real. `path billing→shared` deu **NO PATH** apesar da dependência real — referências de projeto/`using` cross-project não viram aresta `import` resolvida. | **Backlog:** resolver project references (`.csproj` ProjectReference) + `using` cross-assembly como arestas para `path` funcionar em .NET. |
+| G1 | MEDIUM | `.forge/graph/graph.json` **não era gitignored** → 7.5 MB de artefato de build seria commitado. | ✅ **CORRIGIDO**: `gitignore.patch` ignora `graph.json`/`report.md`/`fingerprints.json` (regeneráveis em ~1-7s); `summaries.json` (custa tokens) segue commitável. |
+| G2 | MEDIUM | Engine ingeria dirs de **build/output** (`storybook-static/` com bundle de 76.750 LOC, `docs/_archive/`). Inflava nós/órfãos. | ✅ **CORRIGIDO**: `SKIP_DIRS` += storybook-static/wwwroot/_archive/TestResults/.vs/.idea/.venv/__pycache__/.turbo/.cache; `SKIP_FILE` exclui `*.min.js`/`*.bundle.js`. **120 nós de poluição removidos** (2137→2017); 0 restantes. |
+| G3 | MEDIUM | Camada: **55% `unknown`** (1167/2137); 758 nós C# sem camada — heurística lia só pastas, não o sufixo de projeto .NET. | ✅ **CORRIGIDO**: `layerOf` lê o sufixo `.NET` (`Collatra.X.Domain/` → domain) + mais pastas. **unknown 55%→15%, C# unknown 758→0**. Camadas: api 162/app 423/domain 274/infra 255/contracts 45/test 556. |
+| ~~G4~~ | — | ~~Arestas C# não capturam dependência real~~ | ❌ **RETRATADO (falso-positivo)**: billing **não** referencia shared (sem `ProjectReference`/`using`), logo o `NO PATH` estava correto. As arestas C# `using`→namespace funcionam (usings explícitos cobrem o grafo; o `path` BFS as percorre). Limitação menor remanescente: `ImplicitUsings`/global usings não viram aresta. |
+
+> **Validação (2026-06-12):** correções implementadas no engine (`template/.forge/scripts/lib/graph-build.mjs` + `installer/gitignore.patch`), gates do grafo (w41/w42/w43) verdes, e re-testadas no collatra: unknown 55%→15%, C# unknown 758→0, 120 nós de build removidos, graph.json ignorado. Ainda **não commitado** (aguarda OK do Milton).
+
+## Gap spec-vs-implementação — changelog no post-merge (§20.4)
+
+**Reportado por Milton (2026-06-12):** a intenção de atualizar o changelog automaticamente "não
+está funcionando". **Validado:** o plano MVP1 (§20.4) especifica que o hook `post-merge` faz
+"progresso, **changelog**, remoção de worktree". O hook entregue só fazia o worktree prune — a etapa
+de changelog **nunca foi implementada**. Único changelog automático que funcionava: baseline
+`product/current/CHANGELOG.md` no `/forge:archive`.
+
+✅ **CORRIGIDO:** `scripts/lib/changelog-from-merge.mjs` + wiring no hook `post-merge`. Após um merge,
+acumula os commits convencionais do branch mergeado no **CHANGELOG.md raiz** (Keep a Changelog,
+seção `[Unreleased]`): `feat→Added`, `fix→Fixed`, `perf/refactor/revert→Changed`; `chore/test/ci/
+build/docs/style` ignorados. Determinista, **idempotente** (pula short-hash já registrado), **no-op**
+sem CHANGELOG.md raiz ou quando HEAD não é merge. Gate: `tests/changelog-merge-gate.sh`.
