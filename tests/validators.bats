@@ -172,17 +172,18 @@ EOF
 
 # ── §19.4 validate-frontmatter ────────────────────────────────────────────────
 
-@test "19.4 FAIL: agent sem description; WARN-only: corpo > 500 linhas" {
+@test "19.4 FAIL: agent sem description; WARN-only: SKILL com corpo > 500 linhas" {
   F="$(mktemp -d /tmp/forge-w31f.XXXXXX)"
-  mkdir -p "$F/agents"
+  mkdir -p "$F/agents" "$F/skills/long"
   printf -- '---\nname: broken\n---\n# x\n' > "$F/agents/broken.md"
   run bash "$T/.forge/scripts/validate-frontmatter.sh" "$F/agents"
   [ "$status" -eq 1 ]
-  printf -- '---\nname: long\ndescription: agente valido com corpo longo\n---\n' > "$F/agents/long.md"
-  rm "$F/agents/broken.md"
-  for i in $(seq 1 510); do echo "linha $i"; done >> "$F/agents/long.md"
-  run bash "$T/.forge/scripts/validate-frontmatter.sh" "$F/agents"
-  [ "$status" -eq 0 ]; [[ "$output" == *"WARN"*"500"* ]]
+  # o WARN de >500 linhas é só para SKILL.md (progressive disclosure); agents podem ser longos.
+  printf -- '---\nname: long\ndescription: skill valida com corpo longo\n---\n' > "$F/skills/long/SKILL.md"
+  for i in $(seq 1 510); do echo "linha $i"; done >> "$F/skills/long/SKILL.md"
+  run bash "$T/.forge/scripts/validate-frontmatter.sh" "$F/skills"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"WARN"*"500"* ]]
   rm -rf "$F"
 }
 
