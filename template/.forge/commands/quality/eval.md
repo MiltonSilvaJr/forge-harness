@@ -1,5 +1,5 @@
 ---
-description: Meta-avaliação do próprio harness (§18) — mede com números se um template/command/rule do Forge melhora os artefatos gerados, antes de propagá-lo ao time. Caso canônico: /forge:requirements com vs sem o template de requirements, contando [MISS]/[CONFLICT] do validador. Opt-in (quality.evals_enabled).
+description: Meta-avaliação do próprio harness (§18) — mede com números se um template/command/rule do Forge melhora os artefatos gerados, antes de propagá-lo ao time. Caso canônico — /forge:requirements com vs sem o template de requirements, contando [MISS] e [CONFLICT] do validador. Opt-in (quality.evals_enabled).
 argument-hint: "harness <case-name> [--artifact requirements] [--runs N]"
 ---
 
