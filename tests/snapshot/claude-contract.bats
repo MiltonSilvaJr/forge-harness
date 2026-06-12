@@ -104,13 +104,26 @@ PYEOF
   fi
 }
 
-@test "C2: agent counts per category (15/6/6/4/3/1)" {
-  [ "$(find "$CLAUDE_DIR/agents/specifications" -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')" -eq 15 ]
-  [ "$(find "$CLAUDE_DIR/agents/architecture"   -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')" -eq 6 ]
-  [ "$(find "$CLAUDE_DIR/agents/review"         -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')" -eq 6 ]
-  [ "$(find "$CLAUDE_DIR/agents/engineering"    -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')" -eq 4 ]
-  [ "$(find "$CLAUDE_DIR/agents/coding"         -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')" -eq 3 ]
-  [ "$(find "$CLAUDE_DIR/agents/code-review"    -name '*.md' ! -name 'README.md' | wc -l | tr -d ' ')" -eq 1 ]
+# Per-category baseline (source: exact frozen counts; generated: >= — additions allowed,
+# consistent with C2 total and C3/C4). MVPs legitimately add agents per category
+# (ex.: epic-context em specifications na W5.0; quality/* no MVP5).
+@test "C2: agent counts per category (source 15/6/6/4/3/1; generated >=)" {
+  cat_count() { find "$CLAUDE_DIR/agents/$1" -name '*.md' ! -name 'README.md' | wc -l | tr -d ' '; }
+  if [ "$MODE" = "generated" ]; then
+    [ "$(cat_count specifications)" -ge 15 ]
+    [ "$(cat_count architecture)"   -ge 6 ]
+    [ "$(cat_count review)"         -ge 6 ]
+    [ "$(cat_count engineering)"    -ge 4 ]
+    [ "$(cat_count coding)"         -ge 3 ]
+    [ "$(cat_count code-review)"    -ge 1 ]
+  else
+    [ "$(cat_count specifications)" -eq 15 ]
+    [ "$(cat_count architecture)"   -eq 6 ]
+    [ "$(cat_count review)"         -eq 6 ]
+    [ "$(cat_count engineering)"    -eq 4 ]
+    [ "$(cat_count coding)"         -eq 3 ]
+    [ "$(cat_count code-review)"    -eq 1 ]
+  fi
 }
 
 # ── C3 — rules ───────────────────────────────────────────────────────────────
