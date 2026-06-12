@@ -57,3 +57,23 @@ o baseline (que está vazio). Mais barato e seguro que completar um estado parci
 |----|-----------|--------|---------|
 | W2-C | MEDIUM | `ingest-legacy` cobre só 6 categorias canônicas (prd/frd-nfrd/ddd/trd/adr/glossary). Conteúdo rico fora delas — `modules/`(66), `backlog/`(18), `data-model/`, spec top-level — **não é ingerido nem reportado** (silencioso). Viola "no silent caps" (§17.6). | **Change candidato:** `ingest-legacy` deve **avisar** quais dirs de `docs/product/` ficaram fora do baseline (e talvez um bucket `modules/` ou mapa para capabilities). |
 | W2-D | LOW | `modules/` (requirements por módulo) vira baseline só via extração semântica de capabilities (change a change), inexistente para projetos sem código que entram via specs. | **Backlog:** caminho de extração de capabilities a partir de `docs/product/modules/` no onboard, não só via `/forge:archive`. |
+
+## Piloto graph (brownfield com código) — collatra (2026-06-12)
+
+Monorepo real polyglot: 8 microsserviços .NET + frontend backoffice. Forge instalado em branch
+`feature/forge-graph-eval` (AGENTS.md/.claude antigos backupeados; install não-commitado — Milton revisa).
+
+**Graph build:** 2137 nós, 26474 arestas, **7.5 MB**, **7s**, determinista, **zero tokens**.
+- Polyglot OK: csharp 1414, ts 560, js 132, python 31 (4 linguagens).
+- **99.8% das arestas resolvidas** — ótima integridade referencial.
+- `validate` OK (1 warning: 294 órfãos). `query billing` → 302 nós com camada+loc (lookup barato útil).
+
+**Veredito:** o engine **funciona e entrega valor** (rápido, determinista, zero-token, polyglot,
+queries úteis para "consultar o grafo antes de ler arquivos"). 4 gaps de qualidade num monorepo .NET real:
+
+| ID | Sev | Achado | Triagem |
+|----|-----|--------|---------|
+| G1 | MEDIUM | `.forge/graph/graph.json` **não é gitignored** → 7.5 MB de artefato de build seria commitado. | **Change candidato:** bloco .gitignore do Forge deve ignorar `.forge/graph/graph.json` (ou Git LFS, como previa a W8.2). |
+| G2 | MEDIUM | Engine ingere dirs de **build/output**: `frontend/backoffice/storybook-static/` (bundles minificados — `globals-runtime.js` 76.750 LOC!) e `docs/_archive/`. Infla nós e órfãos. | **Change candidato:** lista de exclusão do engine precisa cobrir `storybook-static`, `_archive`, `dist`, `.next`, `wwwroot`, `*.min.js`. |
+| G3 | MEDIUM | Classificação de camada: **55% dos nós = `unknown`** (1167/2137). Heurística C# perde `Attributes/`, `Middlewares/`, `Endpoints/`, `Extensions/`. Enfraquece análise por camada. | **Backlog:** ampliar heurística de layer p/ padrões .NET comuns. |
+| G4 | MEDIUM | Arestas C# são 98% `namespace` (co-membership), não dependência real. `path billing→shared` deu **NO PATH** apesar da dependência real — referências de projeto/`using` cross-project não viram aresta `import` resolvida. | **Backlog:** resolver project references (`.csproj` ProjectReference) + `using` cross-assembly como arestas para `path` funcionar em .NET. |
