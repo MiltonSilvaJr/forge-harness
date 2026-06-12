@@ -57,3 +57,39 @@ o baseline (que está vazio). Mais barato e seguro que completar um estado parci
 |----|-----------|--------|---------|
 | W2-C | MEDIUM | `ingest-legacy` cobre só 6 categorias canônicas (prd/frd-nfrd/ddd/trd/adr/glossary). Conteúdo rico fora delas — `modules/`(66), `backlog/`(18), `data-model/`, spec top-level — **não é ingerido nem reportado** (silencioso). Viola "no silent caps" (§17.6). | **Change candidato:** `ingest-legacy` deve **avisar** quais dirs de `docs/product/` ficaram fora do baseline (e talvez um bucket `modules/` ou mapa para capabilities). |
 | W2-D | LOW | `modules/` (requirements por módulo) vira baseline só via extração semântica de capabilities (change a change), inexistente para projetos sem código que entram via specs. | **Backlog:** caminho de extração de capabilities a partir de `docs/product/modules/` no onboard, não só via `/forge:archive`. |
+
+## Piloto graph (brownfield com código) — collatra (2026-06-12)
+
+Monorepo real polyglot: 8 microsserviços .NET + frontend backoffice. Forge instalado em branch
+`feature/forge-graph-eval` (AGENTS.md/.claude antigos backupeados; install não-commitado — Milton revisa).
+
+**Graph build:** 2137 nós, 26474 arestas, **7.5 MB**, **7s**, determinista, **zero tokens**.
+- Polyglot OK: csharp 1414, ts 560, js 132, python 31 (4 linguagens).
+- **99.8% das arestas resolvidas** — ótima integridade referencial.
+- `validate` OK (1 warning: 294 órfãos). `query billing` → 302 nós com camada+loc (lookup barato útil).
+
+**Veredito:** o engine **funciona e entrega valor** (rápido, determinista, zero-token, polyglot,
+queries úteis para "consultar o grafo antes de ler arquivos"). 4 gaps de qualidade num monorepo .NET real:
+
+| ID | Sev | Achado | Triagem |
+|----|-----|--------|---------|
+| G1 | MEDIUM | `.forge/graph/graph.json` **não era gitignored** → 7.5 MB de artefato de build seria commitado. | ✅ **CORRIGIDO**: `gitignore.patch` ignora `graph.json`/`report.md`/`fingerprints.json` (regeneráveis em ~1-7s); `summaries.json` (custa tokens) segue commitável. |
+| G2 | MEDIUM | Engine ingeria dirs de **build/output** (`storybook-static/` com bundle de 76.750 LOC, `docs/_archive/`). Inflava nós/órfãos. | ✅ **CORRIGIDO**: `SKIP_DIRS` += storybook-static/wwwroot/_archive/TestResults/.vs/.idea/.venv/__pycache__/.turbo/.cache; `SKIP_FILE` exclui `*.min.js`/`*.bundle.js`. **120 nós de poluição removidos** (2137→2017); 0 restantes. |
+| G3 | MEDIUM | Camada: **55% `unknown`** (1167/2137); 758 nós C# sem camada — heurística lia só pastas, não o sufixo de projeto .NET. | ✅ **CORRIGIDO**: `layerOf` lê o sufixo `.NET` (`Collatra.X.Domain/` → domain) + mais pastas. **unknown 55%→15%, C# unknown 758→0**. Camadas: api 162/app 423/domain 274/infra 255/contracts 45/test 556. |
+| ~~G4~~ | — | ~~Arestas C# não capturam dependência real~~ | ❌ **RETRATADO (falso-positivo)**: billing **não** referencia shared (sem `ProjectReference`/`using`), logo o `NO PATH` estava correto. As arestas C# `using`→namespace funcionam (usings explícitos cobrem o grafo; o `path` BFS as percorre). Limitação menor remanescente: `ImplicitUsings`/global usings não viram aresta. |
+
+> **Validação (2026-06-12):** correções implementadas no engine (`template/.forge/scripts/lib/graph-build.mjs` + `installer/gitignore.patch`), gates do grafo (w41/w42/w43) verdes, e re-testadas no collatra: unknown 55%→15%, C# unknown 758→0, 120 nós de build removidos, graph.json ignorado. Ainda **não commitado** (aguarda OK do Milton).
+
+## Gap spec-vs-implementação — changelog no post-merge (§20.4)
+
+**Reportado por Milton (2026-06-12):** a intenção de atualizar o changelog automaticamente "não
+está funcionando". **Validado:** o plano MVP1 (§20.4) especifica que o hook `post-merge` faz
+"progresso, **changelog**, remoção de worktree". O hook entregue só fazia o worktree prune — a etapa
+de changelog **nunca foi implementada**. Único changelog automático que funcionava: baseline
+`product/current/CHANGELOG.md` no `/forge:archive`.
+
+✅ **CORRIGIDO:** `scripts/lib/changelog-from-merge.mjs` + wiring no hook `post-merge`. Após um merge,
+acumula os commits convencionais do branch mergeado no **CHANGELOG.md raiz** (Keep a Changelog,
+seção `[Unreleased]`): `feat→Added`, `fix→Fixed`, `perf/refactor/revert→Changed`; `chore/test/ci/
+build/docs/style` ignorados. Determinista, **idempotente** (pula short-hash já registrado), **no-op**
+sem CHANGELOG.md raiz ou quando HEAD não é merge. Gate: `tests/changelog-merge-gate.sh`.
