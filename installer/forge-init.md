@@ -1,0 +1,22 @@
+---
+description: Instala o Forge Project Harness (.forge/) num projeto - novo ou existente - com adapters gerados, symlinks, gitignore e hooks git. Sucessor do /init-project. Use em repo vazio (greenfield) ou em codebase existente (brownfield).
+---
+
+# /forge:init
+
+Bootstrap do Forge Project Harness. Flags: `--mode greenfield|brownfield` (default: detectar),
+`--force` (sobrescreve com backup), `--no-symlink` (cópias materializadas em vez de symlinks).
+
+> A parte mecânica é o script determinista `installer/install.sh` — não reimplemente cópia,
+> placeholders, gitignore ou sync manualmente.
+
+## Etapas
+
+1. **Inspeção.** Verifique: `.forge/` já existe? É repo git? Existe `AGENTS.md`/`CLAUDE.md`/`.claude/` legado? Detecte o modo: diretório vazio → greenfield; código existente → brownfield.
+2. **Guarda contra sobrescrita.** Se `.forge/` existe e o usuário não passou `--force`, apresente as opções (AskUserQuestion): **Manter** (abortar), **Sobrescrever com backup** (`--force`; o anterior vira `.forge.bak-N`). Nunca sobrescreva silenciosamente. Harness legado `.claude/` nunca é apagado pelo init — ele será regenerado como adapter pelo sync (teste manual do contrato C10 antes de remover qualquer fonte legada).
+3. **Metadados.** Colete `PROJECT_SLUG` (kebab-case; default: nome do diretório), `PROJECT_NAME` (display) e `PROJECT_DESCRIPTION` (uma linha). Em modo não-interativo, use os defaults.
+4. **Seleção de adapters (elicitação).** Pergunte via AskUserQuestion **quais agentes este repo usa** (multi-select): Claude Code, Codex, Cursor, Gemini CLI, Kiro, Qwen / Forge CLI, agents-skills (cross-tool). **Pré-marque o agente em uso** (detecte: variável `CLAUDECODE`/`CLAUDE_CODE_*` ou pasta `.claude/` → Claude; `.cursor/` → Cursor; etc.; sem sinal → Claude por default). Instale **apenas os escolhidos** — o agnosticismo do Forge é "trocar sem quebrar", não "instalar todos". Mapeie os rótulos para nomes de adapter: `claude,codex,cursor,gemini,kiro,qwen,forge-cli,agents-skills`. Em modo não-interativo, use `claude`.
+5. **Instalação mecânica.** Rode `installer/install.sh --target <raiz> --slug <slug> --name <nome> --desc <descricao> --adapters <lista-escolhida>` (+ `--force`/`--no-symlink` conforme decidido). O script: instala `.forge/`, substitui apenas placeholders MAIÚSCULOS, aplica o bloco gerenciado no `.gitignore`, configura `core.hooksPath` (se repo git), instala `staging.yml`, registra a lista ativa em `forge.yaml` e gera `AGENTS.md` + os adapters escolhidos (símbolos/pastas só dos agentes selecionados — sem poluir o workspace com os demais).
+6. **Escaneio de stack (brownfield).** Detecte como rodar/testar/typecheck/lint (package.json, sln, Makefile, compose) e **preencha o bloco `runtime:`** do frontmatter de `.forge/FORGE.md`; complete a seção "Project" de `.forge/context.md` (stack primária, estrutura `tree -L 2` resumida). Re-rode o sync (`bash .forge/scripts/sync-adapters.sh --adapter all`) para refletir no `AGENTS.md`.
+7. **Verificação.** `bash .forge/scripts/doctor.sh --report` → exit 0 obrigatório. Se houver `✗`, corrija antes de concluir.
+8. **Relatório.** Em poucas linhas: o que foi instalado, modo, adapters escolhidos, e próximos passos (`/forge:status`, `/forge:spec new` quando disponível; adicionar outro agente depois: `/forge:sync-adapters --set <lista>`). **Não commite** — o usuário decide.

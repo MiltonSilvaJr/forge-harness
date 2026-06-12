@@ -1,0 +1,19 @@
+# Claude Code
+.claude/settings.local.json
+.claude/cache/
+
+# Git worktrees (skill using-git-worktrees) — criados em .claude/worktrees/<escopo>-<descricao>
+.claude/worktrees/
+
+# gRPC generated stubs
+gen/
+**/*.pb.cs
+**/*.pb.go
+**/*_pb2.py
+**/*_pb2_grpc.py
+
+# Editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
