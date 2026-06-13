@@ -1,19 +1,46 @@
 {
   "name": "forge-harness",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs",
-    "test": "tests"
+  "version": "0.1.0-rc1",
+  "description": "Spec-Driven Development harness: single source of truth in .forge/, multi-agent adapters (Claude/Codex/Cursor/Gemini/…), native code graph and deterministic validators. Zero runtime deps.",
+  "type": "commonjs",
+  "bin": {
+    "forge-harness": "bin/forge.mjs"
+  },
+  "files": [
+    "bin/",
+    "template/",
+    "installer/gitignore.patch",
+    "installer/install.sh",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "bash tests/run-all.sh"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "keywords": [
+    "spec-driven-development",
+    "sdd",
+    "scaffold",
+    "code-graph",
+    "ai-agents",
+    "claude-code",
+    "codex",
+    "cursor",
+    "architecture",
+    "harness"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiltonSilvaJr/forge-harness.git"
+  },
+  "homepage": "https://github.com/MiltonSilvaJr/forge-harness#readme",
+  "bugs": {
+    "url": "https://github.com/MiltonSilvaJr/forge-harness/issues"
+  },
+  "author": "Milton Antonio da Silva Jr <milton@vellus.tech>",
+  "license": "MIT",
   "devDependencies": {
     "ajv": "^8.20.0",
     "yaml": "^2.9.0"

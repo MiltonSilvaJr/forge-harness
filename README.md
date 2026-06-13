@@ -7,7 +7,7 @@
 [![CI](https://github.com/MiltonSilvaJr/forge-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/MiltonSilvaJr/forge-harness/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Version](https://img.shields.io/badge/version-v0.1.0--rc1-blue.svg)](./CHANGELOG.md)
-[![Gates](https://img.shields.io/badge/gates-28%20passing-brightgreen.svg)](./tests)
+[![Gates](https://img.shields.io/badge/gates-29%20passing-brightgreen.svg)](./tests)
 [![Runtime](https://img.shields.io/badge/runtime-zero--dependency-success.svg)](#)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-339933.svg)](#)
 [![Adapters](https://img.shields.io/badge/adapters-claude%20%C2%B7%20codex%20%C2%B7%20cursor%20%C2%B7%20%2B5-8A2BE2.svg)](#adapters-multi-agente)
@@ -46,19 +46,40 @@ runtime e sem gastar tokens onde não precisa.
 ## 🚀 Quickstart
 
 ```bash
-# instalar o harness em um projeto (greenfield ou existente)
-git clone https://github.com/MiltonSilvaJr/forge-harness.git
-forge-harness/installer/install.sh \
-  --target /caminho/do/seu-projeto \
-  --slug seu-projeto --name "Seu Projeto" --desc "Descrição em 1 linha"
-
-cd /caminho/do/seu-projeto
-bash .forge/scripts/doctor.sh        # detecta stack + diagnostica o ambiente
+# no diretório do seu projeto (greenfield ou existente) — interativo, zero-install
+npx forge-harness@latest init
 ```
 
-O installer cria `.forge/` (fonte única) + `AGENTS.md` + `CLAUDE.md` (symlink) + os adapters do(s)
-agente(s) ativo(s). Por padrão instala apenas o adapter **claude**; adicione outros com
-`bash .forge/scripts/sync-adapters.sh --set claude,codex,cursor`.
+O `init` pergunta nome/slug/descrição/adapters. Para automação (CI, scripts), passe tudo por flag:
+
+```bash
+npx forge-harness@latest init \
+  --target /caminho/do/seu-projeto \
+  --name "Seu Projeto" --slug seu-projeto --desc "Descrição em 1 linha" \
+  --adapters claude --yes
+
+cd /caminho/do/seu-projeto
+bash .forge/scripts/doctor.sh        # detecta a stack + diagnostica o ambiente
+```
+
+O `init` cria `.forge/` (fonte única) + `AGENTS.md` + `CLAUDE.md` (symlink) + os adapters do(s)
+agente(s) ativo(s). Por padrão instala apenas o adapter **claude**; adicione outros depois com
+`bash .forge/scripts/sync-adapters.sh --set claude,codex,cursor`. Zero dependências de runtime — o
+`npx` baixa o pacote (o template viaja dentro dele), roda uma vez e sai; nada de `node_modules` no
+seu projeto.
+
+<details>
+<summary>Alternativa: instalação por clone (offline / sem npm)</summary>
+
+```bash
+git clone https://github.com/MiltonSilvaJr/forge-harness.git
+forge-harness/installer/install.sh --target /caminho/do/seu-projeto \
+  --name "Seu Projeto" --slug seu-projeto --desc "Descrição em 1 linha"
+```
+
+O `installer/install.sh` (bash) é o mesmo fluxo do `init`, útil sem Node/npm no PATH ou em ambiente
+totalmente offline. O `bin/forge.mjs` (usado pelo `npx`) é a porta cross-platform desse script.
+</details>
 
 ## 🧭 Ciclo de vida SDD
 
@@ -103,8 +124,9 @@ template/.forge/        # o harness instalável (fonte única)
 ├── rules/   (33)       # convenções (arquitetura, domínio, testing, …)
 ├── schemas/ (17)       # JSON Schemas (manifest, spec-delta, grading, graph, …)
 └── scripts/ (46)       # engine determinista (graph, archive, sync-adapters, hooks, …)
+bin/forge.mjs           # CLI do npx (forge-harness init) — porta cross-platform do install.sh
 installer/              # install.sh + gitignore.patch + delegação global do /init-project
-tests/                  # 28 gates deterministas + run-all.sh
+tests/                  # 29 gates deterministas + run-all.sh
 docs/                   # planos (MVP1–5, Fase 8) + referência do harness
 snapshot/               # snapshot congelado do adapter Claude (contrato de compatibilidade)
 ```
@@ -112,7 +134,7 @@ snapshot/               # snapshot congelado do adapter Claude (contrato de comp
 ## ✅ Testes
 
 ```bash
-bash tests/run-all.sh          # roda os 28 gates + suítes bats; saída agregada
+bash tests/run-all.sh          # roda os 29 gates + suítes bats; saída agregada
 ```
 
 Cada wave de desenvolvimento entrega seu gate junto (shift-left). O contrato do adapter Claude
