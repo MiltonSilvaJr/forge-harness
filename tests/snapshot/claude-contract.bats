@@ -56,27 +56,32 @@ setup() {
   [ ! -e "$WRAPPERS_DIR/README.md" ]
 }
 
-@test "C1: every projected command has a YAML-parseable frontmatter with description (generated mode only)" {
+@test "C1/C2/C4: command/agent/skill frontmatter is YAML-parseable with description (generated mode only)" {
   [ "$MODE" = "generated" ] || skip "legacy snapshot frontmatters are frozen by contract"
   command -v python3 >/dev/null || skip "python3 unavailable"
-  python3 - "$CMDS_DIR" <<'PYEOF'
+  python3 - "$CMDS_DIR" "$CLAUDE_DIR/agents" "$CLAUDE_DIR/skills" <<'PYEOF'
 import sys, re, pathlib
 try:
     import yaml
 except ImportError:
     sys.exit(0)
+# Valida que TODO frontmatter de command/agent/skill projetado parseia como YAML e tem
+# description — pega quebradores comuns (": " mapping, "&" anchor) que impedem o carregamento.
 bad = []
-for f in pathlib.Path(sys.argv[1]).rglob('*.md'):
-    text = f.read_text()
-    m = re.match(r'^---\n(.*?)\n---', text, re.S)
-    if not m:
-        bad.append(f"{f}: no frontmatter"); continue
-    try:
-        data = yaml.safe_load(m.group(1))
-    except yaml.YAMLError as e:
-        bad.append(f"{f}: {str(e).splitlines()[0]}"); continue
-    if not (data or {}).get('description'):
-        bad.append(f"{f}: missing description")
+for d in sys.argv[1:]:
+    for f in pathlib.Path(d).rglob('*.md'):
+        if f.name == 'README.md':
+            continue
+        text = f.read_text()
+        m = re.match(r'^---\n(.*?)\n---', text, re.S)
+        if not m:
+            bad.append(f"{f}: no frontmatter"); continue
+        try:
+            data = yaml.safe_load(m.group(1))
+        except yaml.YAMLError as e:
+            bad.append(f"{f}: {str(e).splitlines()[0]}"); continue
+        if not (data or {}).get('description'):
+            bad.append(f"{f}: missing description")
 if bad:
     print('\n'.join(bad)); sys.exit(1)
 PYEOF

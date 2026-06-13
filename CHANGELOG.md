@@ -7,6 +7,10 @@ e o versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 ## [Unreleased]
 
 ### Added
+- `/forge:mermaid-to-drawio` — converte Mermaid (flowchart) em `.drawio` (mxGraph) editável visualmente no draw.io; `/forge:infra-diagram` agora emite os três formatos (`.py`, `.md`, `.drawio`).
+
+### Fixed
+- Frontmatter YAML inválido (`: `/`&`) em descrições de comando/agente quebrava o carregamento; corrigido e o contrato passa a validar command/agent/skill (com pyyaml na CI).
 - `/forge:infra-diagram` — scaffold de diagram-as-code (mingrammer/diagrams) a partir do docker-compose: ícones reais, clusters por tipo, base para diagramas de infra e PCI DSS.
 
 ## [0.1.0-rc1] — 2026-06-12

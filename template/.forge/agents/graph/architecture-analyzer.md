@@ -1,6 +1,6 @@
 ---
 name: architecture-analyzer
-description: Lê o grafo de código consolidado e produz uma visão de arquitetura — camadas, boundaries, fluxos de dependência entre módulos e violações de direção (ex.: domain importando infrastructure). Aciona no /forge:onboard e como insumo do /forge:c4. Opera sobre graph.json (nodes/edges/layers), não sobre arquivos crus.
+description: Lê o grafo de código consolidado e produz uma visão de arquitetura — camadas, boundaries, fluxos de dependência entre módulos e violações de direção (por exemplo, domain importando infrastructure). Aciona no /forge:onboard e como insumo do /forge:c4. Opera sobre graph.json (nodes, edges, layers), não sobre arquivos crus.
 tools:
   - Read
   - Bash
