@@ -6,7 +6,9 @@
 //
 // Uso: infra-scan.mjs <repo-root> [--out <dir>]  (default out: docs/diagrams)
 import { readFileSync, existsSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { execFileSync } from 'node:child_process';
 
 const root = resolve(process.argv[2] || '.');
 const outArg = process.argv.indexOf('--out');
@@ -138,4 +140,12 @@ const md = `# ${projName} — Infraestrutura (editável)\n\n` +
   '```mermaid\n' + mer.join('\n') + '\n```\n';
 writeFileSync(join(outDir, 'infra.md'), md);
 
-console.log(`OK ${join(outDir, 'infra.py')} + infra.md (editável) (${nodes.length} serviços: ${GROUPS.map(([g, t]) => `${byG(g).length} ${g}`).filter((s) => !s.startsWith('0')).join(', ')})`);
+// .drawio EDITÁVEL VISUAL (converte o Mermaid via mermaid-to-drawio.mjs) — opcional.
+let drawio = '';
+try {
+  const conv = join(dirname(fileURLToPath(import.meta.url)), 'mermaid-to-drawio.mjs');
+  execFileSync(process.execPath, [conv, join(outDir, 'infra.md'), '--out', join(outDir, 'infra.drawio')], { stdio: 'ignore' });
+  if (existsSync(join(outDir, 'infra.drawio'))) drawio = ' + infra.drawio (draw.io)';
+} catch { /* draw.io é opcional */ }
+
+console.log(`OK ${join(outDir, 'infra.py')} + infra.md (editável)${drawio} (${nodes.length} serviços: ${GROUPS.map(([g, t]) => `${byG(g).length} ${g}`).filter((s) => !s.startsWith('0')).join(', ')})`);
