@@ -4,7 +4,7 @@
 
 **Spec-Driven Development como fonte única — multi-agente, determinista e com code graph nativo.**
 
-[![CI](https://github.com/MiltonSilvaJr/forge-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/MiltonSilvaJr/forge-harness/actions/workflows/ci.yml)
+[![CI](https://github.com/vellus-tech/forge-harness/actions/workflows/ci.yml/badge.svg)](https://github.com/vellus-tech/forge-harness/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![npm](https://img.shields.io/npm/v/forge-harness?color=blue&label=npm)](https://www.npmjs.com/package/forge-harness)
 [![Gates](https://img.shields.io/badge/gates-30%20passing-brightgreen.svg)](./tests)
@@ -85,7 +85,7 @@ Para (re)instalar/atualizar o plugin manualmente, há duas vias:
 npx forge-harness@latest install-plugin
 
 # B) via marketplace git — versionado, atualizável por git (dentro do Claude Code)
-/plugin marketplace add MiltonSilvaJr/forge-harness
+/plugin marketplace add vellus-tech/forge-harness
 /plugin install forge@forge-harness
 ```
 
@@ -96,7 +96,7 @@ partir do `.forge/` local com `/forge:build-plugin`.
 <summary>Alternativa: instalação por clone (offline / sem npm)</summary>
 
 ```bash
-git clone https://github.com/MiltonSilvaJr/forge-harness.git
+git clone https://github.com/vellus-tech/forge-harness.git
 forge-harness/installer/install.sh --target /caminho/do/seu-projeto \
   --name "Seu Projeto" --slug seu-projeto --desc "Descrição em 1 linha"
 ```
@@ -171,17 +171,21 @@ Cada wave de desenvolvimento entrega seu gate junto (shift-left). O contrato do 
 
 ## 🗺️ Status & roadmap
 
-`v0.1.0-rc1` — MVP1–MVP5 completos + consolidação (Fase 8) + code graph. Ver [CHANGELOG](./CHANGELOG.md).
+`v0.1.0-rc5` — MVP1–MVP5 completos + consolidação (Fase 8) + code graph + entrega dos `/forge:*` via
+plugin do Claude Code. Ver [CHANGELOG](./CHANGELOG.md).
 
 - [x] Núcleo canônico, multi-adapter, ciclo SDD, validadores
 - [x] Baseline/archive, code graph + insights de arquitetura, eval harness opt-in
 - [x] `/init-project` global delegando ao Forge
-- [ ] Teste manual em Claude Code real (contrato C10) + remoção dos wrappers deprecados → **v0.1.0**
+- [x] Slash commands `/forge:*` via **plugin** (npx + marketplace git); adapter claude deixa de
+  projetar `.claude/commands/` (contrato C1 v1.3)
+- [ ] Teste manual em Claude Code real (contrato C10) → **v0.1.0**
 - [ ] Renderer MDL nativo (PoC atual aproxima via Mermaid)
 
 ## 🤝 Contribuindo
 
-1. Branch a partir de `develop` (`feature/<wave>`); todo trabalho entra com **gate verde**.
+1. **Branch a partir de `develop`** (`feature/<wave>`); todo PR mira **`develop`** (branch padrão e de
+   integração). `main` é a branch estável/de release. Todo trabalho entra com **gate verde**.
 2. `bash tests/run-all.sh` deve passar 100% antes do merge.
 3. Convenções em `template/.forge/rules/`; documentos em **pt-BR**, identificadores em inglês.
 4. Sem co-autoria de IA em mensagens de commit/PR.

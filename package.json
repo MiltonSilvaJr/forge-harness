@@ -34,11 +34,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MiltonSilvaJr/forge-harness.git"
+    "url": "git+https://github.com/vellus-tech/forge-harness.git"
   },
-  "homepage": "https://github.com/MiltonSilvaJr/forge-harness#readme",
+  "homepage": "https://github.com/vellus-tech/forge-harness#readme",
   "bugs": {
-    "url": "https://github.com/MiltonSilvaJr/forge-harness/issues"
+    "url": "https://github.com/vellus-tech/forge-harness/issues"
   },
   "author": "Milton Antonio da Silva Jr <milton@vellus.tech>",
   "license": "MIT",

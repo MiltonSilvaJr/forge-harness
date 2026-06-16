@@ -28,4 +28,4 @@ Execute de forma determinista e reporte curto:
 Notas:
 - Determinista: rodar 2x e byte-identico. Valide o manifesto com `claude plugin validate <dir>`.
 - Distribuicao alternativa (sem regenerar local): marketplace git do forge-harness
-  (`/plugin marketplace add MiltonSilvaJr/forge-harness` + `/plugin install forge`).
+  (`/plugin marketplace add vellus-tech/forge-harness` + `/plugin install forge`).

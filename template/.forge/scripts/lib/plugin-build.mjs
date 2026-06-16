@@ -49,7 +49,7 @@ export function manifest({ version, name = 'forge' }) {
     description: PLUGIN_DESCRIPTION,
     version,
     author: { name: 'Milton Antonio da Silva Jr' },
-    homepage: 'https://github.com/MiltonSilvaJr/forge-harness',
+    homepage: 'https://github.com/vellus-tech/forge-harness',
   };
 }
 

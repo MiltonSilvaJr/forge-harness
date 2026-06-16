@@ -311,7 +311,7 @@ async function main() {
       pluginNote = '  # instale os /forge:*: npx forge-harness install-plugin';
     }
   } else if (wantsClaude) {
-    pluginNote = '  # instale os /forge:*: npx forge-harness install-plugin  (ou /plugin marketplace add MiltonSilvaJr/forge-harness)';
+    pluginNote = '  # instale os /forge:*: npx forge-harness install-plugin  (ou /plugin marketplace add vellus-tech/forge-harness)';
   }
 
   console.log(`\n✔ Forge instalado em ${target}`);

@@ -56,9 +56,9 @@ consolidação (Fase 8) + code graph com insights de arquitetura.
 - Toda a camada Quality (eval/meta) é **opt-in** (`quality.evals_enabled: false` por default).
 - Pendente para v0.1.0 final: teste manual em Claude Code real (contrato C10) + remoção dos wrappers deprecados.
 
-[Unreleased]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc5...HEAD
-[0.1.0-rc5]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc4...v0.1.0-rc5
-[0.1.0-rc4]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc3...v0.1.0-rc4
-[0.1.0-rc3]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc2...v0.1.0-rc3
-[0.1.0-rc2]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc1...v0.1.0-rc2
-[0.1.0-rc1]: https://github.com/MiltonSilvaJr/forge-harness/releases/tag/v0.1.0-rc1
+[Unreleased]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc5...HEAD
+[0.1.0-rc5]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc4...v0.1.0-rc5
+[0.1.0-rc4]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc3...v0.1.0-rc4
+[0.1.0-rc3]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc2...v0.1.0-rc3
+[0.1.0-rc2]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc1...v0.1.0-rc2
+[0.1.0-rc1]: https://github.com/vellus-tech/forge-harness/releases/tag/v0.1.0-rc1
