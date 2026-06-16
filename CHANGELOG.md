@@ -6,6 +6,19 @@ e o versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [0.1.0-rc7] — 2026-06-16
+
+### Changed
+- **`/forge:doctor` e `/forge:status` agora respondem com orientação clara quando rodados num repo sem o engine Forge.** Como os comandos `/forge:*` são globais (plugin) e aparecem em qualquer projeto, rodá-los num repo sem `.forge/` antes só falhava ao tentar executar um script inexistente. Agora há uma pré-checagem no corpo do comando: se `.forge/forge.yaml` não existe, o agente instrui `npx forge-harness@latest init` (e lembra que não há `/forge:init` por design — o bootstrap é do instalador) em vez de quebrar.
+
+## [0.1.0-rc6] — 2026-06-16
+
+### Changed
+- **Slash commands `/forge:*` agora vêm de um plugin do Claude Code** (não mais de `.claude/commands/`). O Claude Code (>= 2.x) descontinuou o namespace via subdiretório em `.claude/commands/` — o `:` virou exclusivo de plugins. O harness gera o plugin `forge` da mesma fonte `.forge/commands/**` (lib `plugin-build.mjs` + comando `/forge:build-plugin`). Distribuição: `npx forge-harness install-plugin` (auto no `init`) **e** marketplace git (`.claude-plugin/marketplace.json`). O adapter `claude` deixa de projetar `.claude/commands/`; o `reconcile` poda dests órfãos de adapters ativos (contrato C1 v1.3).
+
+### Fixed
+- Comando `/forge:skill` renomeado para **`/forge:skill-lifecycle`**: o nome `skill` (exato) colide com a infra de skills do Claude Code e **derruba o carregamento do plugin inteiro** silenciosamente. `plugin-build.mjs` agora valida nomes reservados. Novo gate `plugin-sync-gate.sh`.
+
 ## [0.1.0-rc5] — 2026-06-15
 
 ### Added
@@ -56,9 +69,11 @@ consolidação (Fase 8) + code graph com insights de arquitetura.
 - Toda a camada Quality (eval/meta) é **opt-in** (`quality.evals_enabled: false` por default).
 - Pendente para v0.1.0 final: teste manual em Claude Code real (contrato C10) + remoção dos wrappers deprecados.
 
-[Unreleased]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc5...HEAD
-[0.1.0-rc5]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc4...v0.1.0-rc5
-[0.1.0-rc4]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc3...v0.1.0-rc4
-[0.1.0-rc3]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc2...v0.1.0-rc3
-[0.1.0-rc2]: https://github.com/MiltonSilvaJr/forge-harness/compare/v0.1.0-rc1...v0.1.0-rc2
-[0.1.0-rc1]: https://github.com/MiltonSilvaJr/forge-harness/releases/tag/v0.1.0-rc1
+[Unreleased]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc7...HEAD
+[0.1.0-rc7]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc6...v0.1.0-rc7
+[0.1.0-rc6]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc5...v0.1.0-rc6
+[0.1.0-rc5]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc4...v0.1.0-rc5
+[0.1.0-rc4]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc3...v0.1.0-rc4
+[0.1.0-rc3]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc2...v0.1.0-rc3
+[0.1.0-rc2]: https://github.com/vellus-tech/forge-harness/compare/v0.1.0-rc1...v0.1.0-rc2
+[0.1.0-rc1]: https://github.com/vellus-tech/forge-harness/releases/tag/v0.1.0-rc1
