@@ -6,6 +6,14 @@ e o versionamento segue [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
+## [0.1.0-rc6] — 2026-06-16
+
+### Changed
+- **Slash commands `/forge:*` agora vêm de um plugin do Claude Code** (não mais de `.claude/commands/`). O Claude Code (>= 2.x) descontinuou o namespace via subdiretório em `.claude/commands/` — o `:` virou exclusivo de plugins. O harness gera o plugin `forge` da mesma fonte `.forge/commands/**` (lib `plugin-build.mjs` + comando `/forge:build-plugin`). Distribuição: `npx forge-harness install-plugin` (auto no `init`) **e** marketplace git (`.claude-plugin/marketplace.json`). O adapter `claude` deixa de projetar `.claude/commands/`; o `reconcile` poda dests órfãos de adapters ativos (contrato C1 v1.3).
+
+### Fixed
+- Comando `/forge:skill` renomeado para **`/forge:skill-lifecycle`**: o nome `skill` (exato) colide com a infra de skills do Claude Code e **derruba o carregamento do plugin inteiro** silenciosamente. `plugin-build.mjs` agora valida nomes reservados. Novo gate `plugin-sync-gate.sh`.
+
 ## [0.1.0-rc5] — 2026-06-15
 
 ### Added
